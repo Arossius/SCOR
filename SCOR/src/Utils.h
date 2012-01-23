@@ -23,6 +23,20 @@ struct Balle
 	double vit_y;
 };
 
+enum Type_Ordre_Robot
+{
+	Do_nothing,
+	Move,
+	Shoot_Left,
+	Shoot_Right
+};
+
+struct Ordre_Robot
+{
+	Type_Ordre_Robot type_Ordre_Robot;
+	Robot robot;
+};
+
 struct Msg_Vid_Robot
 {
 	Robot robot1;
@@ -34,8 +48,8 @@ typedef Msg_Vid_Robot Msg_Robot_IA ;
 
 struct Msg_IA_Ordre
 {
-	Robot robot1;
-	Robot robot2;
+	Ordre_Robot ordre_robot1;
+	Ordre_Robot ordre_robot2;
 };
 
 struct Pas_Robot
