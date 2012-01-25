@@ -15,7 +15,7 @@ enum E_DIRECTION_BALLE {
 	COMING,
 	LEAVING,
 	STOPPED
-}
+};
 
 
 

@@ -19,11 +19,11 @@ IAModule::~IAModule() {
 
 void * IAModule::Launch(void * arg)
 {
-
+	return 0; // TODO : Retourner quelquechose (Armand)
 }
 
 
-virtual void IAModule::run()
+void IAModule::run()
 {
 	for(;;)
 	{
@@ -34,8 +34,8 @@ virtual void IAModule::run()
 	}
 }
 
-E_BALL_DIRECTION IAModule::DefinirDirectionBalle(Balle balle)
+E_DIRECTION_BALLE IAModule::DefinirDirectionBalle(Balle balle)
 {
-
+	return COMING; // TODO : Renvoyer un vrai truc. J'ai mis une valeur au pif pour que ça compile (Armand)
 }
 
