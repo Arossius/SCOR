@@ -95,5 +95,12 @@ struct Msg_Com_Robot
 
 typedef Msg_Com_Robot Msg_Ordre_Com;
 
+/* Fin de la définition des structures */
+
+/* Définition des noms utilisés pour les boites aux lettres. */
+
+#define BAL_VIDEO_ROBOT "bal_video_robot"
+#define BAL_COM_ROBOT "bal_com_robot"
+
 #endif /* UTILS_H_ */
 

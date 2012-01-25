@@ -14,7 +14,8 @@
 #include "Utils.h"
 using namespace std;
 
-int main() {
+int main()
+{
 	/* http://linux.die.net/man/3/mq_open */
 	mqd_t coucou = mq_open("coucou", O_RDONLY);
 	mq_unlink("coucou");
