@@ -102,6 +102,7 @@ typedef Msg_Com_Robot Msg_Ordre_Com;
 #define BAL_VIDEO_ROBOT "bal_video_robot"
 #define BAL_COM_ROBOT "bal_com_robot"
 #define BAL_IA_ORDRE "bal_ia_ordre"
+#define BAL_ROBOT_IA "bal_robot_ia"
 
 #endif /* UTILS_H_ */
 

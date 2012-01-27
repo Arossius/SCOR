@@ -29,6 +29,8 @@ protected:
 	mqd_t bal_com_robot;
 	/* Boîte aux lettres de communication entre Video et Robot */
 	mqd_t bal_video_robot;
+	/* Boîte aux lettres de communication entre Robot et IA */
+	mqd_t bal_robot_ia;
 
 	/* Permet de stocker la position actuelle du robot 1 */
 	Robot robot1;

@@ -17,6 +17,7 @@ robot2()
 {
 	bal_com_robot = mq_open(BAL_COM_ROBOT, O_RDONLY | O_CREAT);
 	bal_video_robot = mq_open(BAL_VIDEO_ROBOT, O_RDONLY | O_NONBLOCK | O_CREAT);
+	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_WRONLY | O_NONBLOCK | O_CREAT);
 }
 
 Robot_Thread::~Robot_Thread()
@@ -24,6 +25,8 @@ Robot_Thread::~Robot_Thread()
 	pthread_cancel(thread);
 	mq_close(bal_com_robot);
 	mq_close(bal_video_robot);
+	mq_close(bal_robot_ia);
+	mq_unlink(BAL_ROBOT_IA);
 }
 
 void Robot_Thread::Launch()
@@ -33,22 +36,45 @@ void Robot_Thread::Launch()
 
 void Robot_Thread::run()
 {
-	Msg_Com_Robot* msg_com_robot = new Msg_Com_Robot();
-	Msg_Vid_Robot* msg_vid_robot = new Msg_Vid_Robot();
+	Msg_Com_Robot msg_com_robot;
+	Msg_Vid_Robot msg_vid_robot;
 	timespec delay;
 	delay.tv_nsec = 1000000; // TODO : Temporaire
 	delay.tv_sec = 0;
 
 	for ( ; ; )
 	{
-		if (mq_timedreceive(bal_com_robot, (char*)msg_com_robot, sizeof(Msg_Com_Robot), NULL, &delay) != -1)
+		bool modified = false;
+		if (mq_timedreceive(bal_com_robot, (char*)&msg_com_robot, sizeof(Msg_Com_Robot), NULL, &delay) != -1)
 		{
-			setNewPosition(robot1, msg_com_robot->robot1);
-			setNewPosition(robot2, msg_com_robot->robot2);
+			modified = true;
+			setNewPosition(robot1, msg_com_robot.robot1);
+			setNewPosition(robot2, msg_com_robot.robot2);
 		}
-		if (mq_receive(bal_video_robot, (char*)msg_vid_robot, sizeof(Msg_Vid_Robot), NULL) != -1)
+		if (mq_receive(bal_video_robot, (char*)&msg_vid_robot, sizeof(Msg_Vid_Robot), NULL) != -1)
 		{
+			modified = true;
+			copyPositions(msg_vid_robot.robot1, msg_vid_robot.robot2, msg_vid_robot.balle);
+		}
+		if (modified)
+		{
+			Msg_Robot_IA msg_robot_ia;
 
+			msg_robot_ia.robot1.angle = robot1.angle;
+			msg_robot_ia.robot1.pos_x = robot1.pos_x;
+			msg_robot_ia.robot1.pos_y = robot1.pos_y;
+
+			msg_robot_ia.robot2.angle = robot2.angle;
+			msg_robot_ia.robot2.pos_x = robot2.pos_x;
+			msg_robot_ia.robot2.pos_y = robot2.pos_y;
+
+			msg_robot_ia.balle.pos_x = balle.pos_x;
+			msg_robot_ia.balle.pos_y = balle.pos_y;
+			msg_robot_ia.balle.vit_x = balle.vit_x;
+			msg_robot_ia.balle.vit_y = balle.vit_y;
+
+
+			mq_send(bal_robot_ia, (char*)&msg_robot_ia, sizeof(Msg_Robot_IA), 0);
 		}
 	}
 }
