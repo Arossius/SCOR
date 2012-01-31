@@ -12,6 +12,7 @@
 Ordre_Thread::Ordre_Thread()
 {
 	bal_ia_ordre = mq_open(BAL_IA_ORDRE, O_RDONLY | O_CREAT | O_NONBLOCK);
+	bal_ordre_com = mq_open(BAL_ORDRE_COM, O_WRONLY | O_CREAT | O_NONBLOCK);
 }
 
 Ordre_Thread::~Ordre_Thread()

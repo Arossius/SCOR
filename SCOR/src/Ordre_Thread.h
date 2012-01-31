@@ -26,6 +26,8 @@ protected:
 
 	/* Boîte aux lettres de communication entre IA et Ordre */
 	mqd_t bal_ia_ordre;
+	/* Boîte aux lettres de communication entre Ordre et com*/
+	mqd_t bal_ordre_com;
 
 	/* Boucle principal du thread  */
 	void run();
