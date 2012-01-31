@@ -84,16 +84,24 @@ struct Pas_Robot
 /* Structure définissant les messages échangés dans la boîte aux lettres
  * Bal_Com_Robot */
 
-struct Msg_Com_Robot
+
+struct Pas_Robots
 {
 	Pas_Robot robot1;
 	Pas_Robot robot2;
 };
 
+struct Msg_Ordre_Com
+{
+	Pas_Robots ordres[4];
+};
+
+
+
 /* Structure définissant les messages échangés dans la boîte aux lettres
  * Bal_Ordre_Com */
 
-typedef Msg_Com_Robot Msg_Ordre_Com;
+typedef Pas_Robots Msg_Com_Robot;
 
 /* Fin de la définition des structures */
 

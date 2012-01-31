@@ -43,10 +43,23 @@ void* Communication_Thread::exec(void* Com_thread)
 
 void Communication_Thread::run()
 {
+	Msg_Ordre_Com msg_ordre_com;
+
 	for(;;)
 	{
+		// si on a reçu un message
+		if (mq_receive(bal_ordre_com, (char*)&msg_ordre_com, sizeof(Msg_Ordre_Com), NULL)!= -1)
+		{
 
+		}else
+		{
+			/*
+			 * Système d'asservissement pour que le robot aille droit (l'asservissement
+			 * intégré n'est pas très performant)
+			 */
 
+		}
+		//sinon
 
 	}
 }

@@ -13,8 +13,8 @@
 
 IAModule_Thread::IAModule_Thread() 
 {
-	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_RDONLY | O_NONBLOCK | O_CREAT);
-	bal_ia_ordre = mq_open(BAL_IA_ORDRE, O_WRONLY | O_CREAT | O_NONBLOCK);
+	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_RDONLY | O_CREAT);
+	bal_ia_ordre = mq_open(BAL_IA_ORDRE, O_WRONLY | O_CREAT);
 }
 
 IAModule_Thread::~IAModule_Thread()

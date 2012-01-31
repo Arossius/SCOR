@@ -17,7 +17,7 @@ robot2()
 {
 	bal_com_robot = mq_open(BAL_COM_ROBOT, O_RDONLY | O_CREAT);
 	bal_video_robot = mq_open(BAL_VIDEO_ROBOT, O_RDONLY | O_NONBLOCK | O_CREAT);
-	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_WRONLY | O_NONBLOCK | O_CREAT);
+	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_WRONLY | O_CREAT);
 }
 
 Robot_Thread::~Robot_Thread()

@@ -40,6 +40,11 @@ protected:
 
 	/* outil d'envoi des commandes au robot */
 	Communication com;
+
+
+	/* ordre actuel */
+	Msg_Ordre_Com ordreCourant;
+
 };
 
 #endif /* COMMUNICATION_THREAD_H_ */
