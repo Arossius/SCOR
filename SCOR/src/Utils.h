@@ -104,5 +104,25 @@ typedef Msg_Com_Robot Msg_Ordre_Com;
 #define BAL_IA_ORDRE "bal_ia_ordre"
 #define BAL_ROBOT_IA "bal_robot_ia"
 
+
+/*
+ * Dimensions du robot
+ */
+const int RAYON_ROBOT = 50;
+const int ANGLE_VISEE = 90;
+
+/* Définition de la carte en coordonnées (X,Y) de déplacement
+ * des robots et de la balle ainsi que des positions de départ
+ * des robots
+ */
+const int LARGEUR_TERRAIN = 480;
+const int LONGUEUR_TERRAIN = 640;
+
+const int LIGNE_DEFENSE =  LONGUEUR_TERRAIN/8;
+
+const Robot INIT_ROBOT1 = { LARGEUR_TERRAIN/4, LIGNE_DEFENSE, ANGLE_VISEE-90 };
+const Robot INIT_ROBOT2 = { 3*LARGEUR_TERRAIN/4, LIGNE_DEFENSE, ANGLE_VISEE + 90 };
+
+
 #endif /* UTILS_H_ */
 
