@@ -45,9 +45,10 @@ void IAModule_Thread::run()
 	Msg_Robot_IA msg_robot_ia;
 	Msg_IA_Ordre msg_ia_ordre;
 
-	timespec delay;
+	/*timespec delay;
 	delay.tv_nsec = 1000000; // TODO : Temporaire
 	delay.tv_sec = 0;
+	*/
 
 
 	for(;;)
@@ -80,7 +81,7 @@ void IAModule_Thread::run()
 			if (ObjectifModifie(msg_ia_ordre))
 			{
 				// envoi
-
+				mq_send(bal_ia_ordre, (char*)&msg_ia_ordre, sizeof(Msg_Robot_IA), 0);
 				// sauvegarde de l'objetctif actuel
 				dernierOrdre = msg_ia_ordre;
 			}
@@ -281,8 +282,23 @@ bool IAModule_Thread::ObjectifModifie(Msg_IA_Ordre  msg_ia_ordre)
 		int oldX = dernierOrdre.ordre_robot1.robot.pos_x;
 		int oldY = dernierOrdre.ordre_robot1.robot.pos_y;
 
+		if (   (newX - oldX)*(newX - oldX) > 10
+			|| (newY - oldY)*(newY - oldY) > 10)
+			return true;
 	}
+	if (   msg_ia_ordre.ordre_robot2.type_Ordre_Robot == Move
+		|| msg_ia_ordre.ordre_robot2.type_Ordre_Robot == Shoot_Left
+		|| msg_ia_ordre.ordre_robot2.type_Ordre_Robot == Shoot_Right)
+	{
+		int newX = msg_ia_ordre.ordre_robot2.robot.pos_x;
+		int newY = msg_ia_ordre.ordre_robot2.robot.pos_y;
+		int oldX = dernierOrdre.ordre_robot2.robot.pos_x;
+		int oldY = dernierOrdre.ordre_robot2.robot.pos_y;
 
+		if (   (newX - oldX)*(newX - oldX) > 10
+			|| (newY - oldY)*(newY - oldY) > 10)
+			return true;
+	}
 
 	return false;
 }
