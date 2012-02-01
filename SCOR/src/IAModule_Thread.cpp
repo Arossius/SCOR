@@ -22,10 +22,11 @@ IAModule_Thread::~IAModule_Thread()
 	pthread_cancel(thread);
 	mq_close(bal_robot_ia);
 	mq_close(bal_ia_ordre);
+	mq_unlink(BAL_IA_ORDRE);
 }
 
 
-void IAModule_Thread::Launch(void * arg)
+void IAModule_Thread::Launch()
 {
 	pthread_create(&thread, NULL, IAModule_Thread::exec, this);
 }

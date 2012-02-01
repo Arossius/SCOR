@@ -133,5 +133,14 @@ const Robot INIT_ROBOT1 = { LARGEUR_TERRAIN/4, LIGNE_DEFENSE, ANGLE_VISEE-90 };
 const Robot INIT_ROBOT2 = { 3*LARGEUR_TERRAIN/4, LIGNE_DEFENSE, ANGLE_VISEE + 90 };
 
 
+
+/*
+ * Descripteurs de fichiers des deux robots
+ */
+#define FICHIER_ROBOT_1 "/dev/ttyUSB0"
+#define FICHIER_ROBOT_2 "/dev/ttyUSB1"
+
+
+
 #endif /* UTILS_H_ */
 

@@ -19,7 +19,7 @@ public:
 	virtual ~Communication_Thread();
 
 	/* lance un nouveau thread thread */
-	void Launch(void * arg);
+	void Launch();
 
 
 /* Méthodes protégées */
@@ -28,6 +28,16 @@ protected:
 	void run();
 	/* Méthode obligatoire pour exécuter le thread */
 	static void* exec(void* ordre_thread);
+
+
+	/* méthodes spécifiques à ce thread */
+	bool setSpeed(Communication *robot, Pas_Robot pas);
+
+	Pas_Robot getSpeed(Communication *robot);
+
+	bool setObjectif(Communication *robot, Pas_Robot pas);
+
+	bool resetPosition(Communication *robot);
 
 protected:
 	/* Identifiant du thread */
@@ -39,11 +49,14 @@ protected:
 	mqd_t bal_com_robot;
 
 	/* outil d'envoi des commandes au robot */
-	Communication com;
+	Communication *robot1;
+	Communication *robot2;
 
 
 	/* ordre actuel */
-	Msg_Ordre_Com ordreCourant;
+	Msg_Ordre_Com liste;
+	int ordreCourantRobot1;
+	int ordreCourantRobot2;
 
 };
 
