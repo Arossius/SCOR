@@ -13,6 +13,7 @@
 
 #include <semaphore.h>
 
+
 sem_t sem_pos;
 
 /* Permet de stocker la position actuelle du robot 1 */
@@ -22,9 +23,14 @@ Robot robot2;
 
 Robot_Thread::Robot_Thread()
 {
-	bal_com_robot = mq_open(BAL_COM_ROBOT, O_RDONLY | O_CREAT, S_IRWXU, NULL);
-	bal_video_robot = mq_open(BAL_VIDEO_ROBOT, O_RDONLY | O_NONBLOCK | O_CREAT, S_IRWXU, NULL);
-	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_WRONLY | O_CREAT, S_IRWXU, NULL);
+	mq_attr att;
+	att.mq_maxmsg = 10;
+	att.mq_msgsize = sizeof(Msg_Com_Robot);
+	bal_com_robot = mq_open(BAL_COM_ROBOT, O_RDONLY | O_CREAT, S_IRWXU, &att);
+	att.mq_msgsize = sizeof(Msg_Vid_Robot);
+	bal_video_robot = mq_open(BAL_VIDEO_ROBOT, O_RDONLY | O_NONBLOCK | O_CREAT, S_IRWXU, &att);
+	att.mq_msgsize = sizeof(Msg_Robot_IA);
+	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_WRONLY | O_CREAT, S_IRWXU, &att);
 	sem_init(&sem_pos, 0, 1); // TODO Faire ça ailleurs, (il y a des hotels pour ça :D)
 }
 
@@ -35,6 +41,7 @@ Robot_Thread::~Robot_Thread()
 	mq_close(bal_video_robot);
 	mq_close(bal_robot_ia);
 	mq_unlink(BAL_ROBOT_IA);
+	sem_close(&sem_pos);
 }
 
 void Robot_Thread::Launch()
@@ -101,15 +108,15 @@ void Robot_Thread::setNewPosition(Robot& robot, Pas_Robot pas_robot)
 	{
 		int pas_angle = (pas_robot.pas_gauche - pas_robot.pas_droite) / 2;
 		robot.pos_x += (pas_robot.pas_droite + pas_angle) * CONVERSION_LONGUEUR * cos(robot.angle * M_PI / 180);
-		robot.pos_y += (pas_robot.pas_droite - pas_angle) * CONVERSION_LONGUEUR * sin(robot.angle * M_PI / 180);
-		robot.angle += pas_angle * CONVERSION_ANGLE / 2;
+		robot.pos_y += (pas_robot.pas_droite + pas_angle) * CONVERSION_LONGUEUR * sin(robot.angle * M_PI / 180);
+		robot.angle += pas_angle * CONVERSION_ANGLE;
 	}
 	else
 	{
 		int pas_angle = (pas_robot.pas_droite - pas_robot.pas_gauche) / 2;
-		robot.pos_x += (pas_robot.pas_gauche - pas_angle) * CONVERSION_LONGUEUR * cos(robot.angle * M_PI / 180);
+		robot.pos_x += (pas_robot.pas_gauche + pas_angle) * CONVERSION_LONGUEUR * cos(robot.angle * M_PI / 180);
 		robot.pos_y += (pas_robot.pas_gauche + pas_angle) * CONVERSION_LONGUEUR * sin(robot.angle * M_PI / 180);
-		robot.angle += pas_angle * CONVERSION_ANGLE / 2;
+		robot.angle += pas_angle * CONVERSION_ANGLE;
 	}
 	sem_post(&sem_pos);
 }
