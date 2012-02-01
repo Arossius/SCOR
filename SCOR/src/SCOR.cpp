@@ -207,6 +207,28 @@ void testIA_Ordre_Com()
 		int i = mq_send(bal_robot_ia, (char*)&msg, sizeof(Msg_Robot_IA), 0);
 		cout << "i=" << i << endl;
 
+
+		sleep(15);
+
+		msg.balle.pos_x = LARGEUR_TERRAIN/8;
+		msg.balle.pos_y = LONGUEUR_TERRAIN/4;
+		msg.balle.vit_x = 0;
+		msg.balle.vit_y = 0;
+
+
+		msg.robot1 = INIT_ROBOT1;
+
+		msg.robot2.pos_x = 480;
+		msg.robot2.pos_y = 0;
+		msg.robot2.angle = -90;
+
+
+		cout << "mq_send" <<endl;
+		i = mq_send(bal_robot_ia, (char*)&msg, sizeof(Msg_Robot_IA), 0);
+		cout << "i=" << i << endl;
+
+
+
 		/*mq_receive(coucou2, (char*)&msg2, sizeof(Msg_Ordre_Com), NULL);
 		cout << msg2.ordres[0].robot1.pas_droite << endl;
 		cout << msg2.ordres[0].robot1.pas_gauche << endl;
