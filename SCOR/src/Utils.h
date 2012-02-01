@@ -107,11 +107,11 @@ typedef Pas_Robots Msg_Com_Robot;
 
 /* Définition des noms utilisés pour les boites aux lettres. */
 
-#define BAL_VIDEO_ROBOT "bal_video_robot"
-#define BAL_COM_ROBOT "bal_com_robot"
-#define BAL_IA_ORDRE "bal_ia_ordre"
-#define BAL_ROBOT_IA "bal_robot_ia"
-#define BAL_ORDRE_COM "bal_ordre_com"
+#define BAL_VIDEO_ROBOT "/bal_video_robot"
+#define BAL_COM_ROBOT "/bal_com_robot"
+#define BAL_IA_ORDRE "/bal_ia_ordre"
+#define BAL_ROBOT_IA "/bal_robot_ia"
+#define BAL_ORDRE_COM "/bal_ordre_com"
 
 
 /*

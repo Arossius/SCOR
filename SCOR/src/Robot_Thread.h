@@ -32,10 +32,6 @@ protected:
 	/* Boîte aux lettres de communication entre Robot et IA */
 	mqd_t bal_robot_ia;
 
-	/* Permet de stocker la position actuelle du robot 1 */
-	Robot robot1;
-	/* Permet de stocker la position actuelle du robot 2 */
-	Robot robot2;
 	/* Permet de stocker les position et vitesse actuelles de la balle */
 	Balle balle;
 
