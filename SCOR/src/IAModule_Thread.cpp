@@ -7,14 +7,22 @@
 
 #include <pthread.h>
 #include <math.h>
+#include <cstdio>
 
 #include "IAModule_Thread.h"
 
 
 IAModule_Thread::IAModule_Thread() 
 {
-	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_RDONLY | O_CREAT);
-	bal_ia_ordre = mq_open(BAL_IA_ORDRE, O_WRONLY | O_CREAT);
+	mq_attr att;
+
+	att.mq_maxmsg = 10;
+	att.mq_msgsize = sizeof(Msg_Robot_IA);
+
+	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_RDONLY | O_CREAT, S_IRWXU, &att);
+
+	att.mq_msgsize = sizeof(Msg_IA_Ordre);
+	bal_ia_ordre = mq_open(BAL_IA_ORDRE, O_WRONLY | O_CREAT, S_IRWXU, &att);
 }
 
 IAModule_Thread::~IAModule_Thread()
@@ -23,6 +31,8 @@ IAModule_Thread::~IAModule_Thread()
 	mq_close(bal_robot_ia);
 	mq_close(bal_ia_ordre);
 	mq_unlink(BAL_IA_ORDRE);
+
+	printf("Fin de IAModule\n");
 }
 
 
@@ -59,6 +69,8 @@ void IAModule_Thread::run()
 		if (mq_receive(bal_robot_ia, (char*)&msg_robot_ia, sizeof(Msg_Robot_IA), NULL)!= -1)
 		{
 			
+			printf("Message reçu\n");
+
 			balle = msg_robot_ia.balle;
 			robot1 = msg_robot_ia.robot1;
 			robot2 = msg_robot_ia.robot2;
@@ -74,6 +86,7 @@ void IAModule_Thread::run()
 				case STOPPED: msg_ia_ordre =  Attaquer();
 					break;
 			}
+			printf("objectif : %d", directionBalle);
 
 			/*
 			 * on vérifie maintenant si l'ordre a changé pour savoir
@@ -82,7 +95,7 @@ void IAModule_Thread::run()
 			if (ObjectifModifie(msg_ia_ordre))
 			{
 				// envoi
-				mq_send(bal_ia_ordre, (char*)&msg_ia_ordre, sizeof(Msg_Robot_IA), 0);
+				mq_send(bal_ia_ordre, (char*)&msg_ia_ordre, sizeof(Msg_IA_Ordre), 0);
 				// sauvegarde de l'objetctif actuel
 				dernierOrdre = msg_ia_ordre;
 			}
