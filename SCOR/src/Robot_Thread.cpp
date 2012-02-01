@@ -11,13 +11,21 @@
 
 #include <math.h>
 
-Robot_Thread::Robot_Thread() :
-robot1(),
-robot2()
+#include <semaphore.h>
+
+sem_t sem_pos;
+
+/* Permet de stocker la position actuelle du robot 1 */
+Robot robot1;
+/* Permet de stocker la position actuelle du robot 2 */
+Robot robot2;
+
+Robot_Thread::Robot_Thread()
 {
-	bal_com_robot = mq_open(BAL_COM_ROBOT, O_RDONLY | O_CREAT);
-	bal_video_robot = mq_open(BAL_VIDEO_ROBOT, O_RDONLY | O_NONBLOCK | O_CREAT);
-	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_WRONLY | O_CREAT);
+	bal_com_robot = mq_open(BAL_COM_ROBOT, O_RDONLY | O_CREAT, S_IRWXU, NULL);
+	bal_video_robot = mq_open(BAL_VIDEO_ROBOT, O_RDONLY | O_NONBLOCK | O_CREAT, S_IRWXU, NULL);
+	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_WRONLY | O_CREAT, S_IRWXU, NULL);
+	sem_init(&sem_pos, 0, 1); // TODO Faire ça ailleurs, (il y a des hotels pour ça :D)
 }
 
 Robot_Thread::~Robot_Thread()
@@ -88,28 +96,34 @@ void* Robot_Thread::exec(void* robot_thread)
 
 void Robot_Thread::setNewPosition(Robot& robot, Pas_Robot pas_robot)
 {
+	sem_wait(&sem_pos);
 	if (pas_robot.pas_droite < pas_robot.pas_gauche)
 	{
-		robot.pos_x += pas_robot.pas_droite * CONVERSION_LONGUEUR * cos(robot.angle);
-		robot.pos_y += pas_robot.pas_droite * CONVERSION_LONGUEUR * sin(robot.angle);
-		robot.angle += (pas_robot.pas_gauche - pas_robot.pas_droite) * CONVERSION_ANGLE;
+		int pas_angle = (pas_robot.pas_gauche - pas_robot.pas_droite) / 2;
+		robot.pos_x += (pas_robot.pas_droite + pas_angle) * CONVERSION_LONGUEUR * cos(robot.angle * M_PI / 180);
+		robot.pos_y += (pas_robot.pas_droite - pas_angle) * CONVERSION_LONGUEUR * sin(robot.angle * M_PI / 180);
+		robot.angle += pas_angle * CONVERSION_ANGLE / 2;
 	}
 	else
 	{
-		robot.pos_x += pas_robot.pas_gauche * CONVERSION_LONGUEUR * cos(robot.angle);
-		robot.pos_y += pas_robot.pas_gauche * CONVERSION_LONGUEUR * sin(robot.angle);
-		robot.angle += (pas_robot.pas_droite - pas_robot.pas_gauche) * CONVERSION_ANGLE;
+		int pas_angle = (pas_robot.pas_droite - pas_robot.pas_gauche) / 2;
+		robot.pos_x += (pas_robot.pas_gauche - pas_angle) * CONVERSION_LONGUEUR * cos(robot.angle * M_PI / 180);
+		robot.pos_y += (pas_robot.pas_gauche + pas_angle) * CONVERSION_LONGUEUR * sin(robot.angle * M_PI / 180);
+		robot.angle += pas_angle * CONVERSION_ANGLE / 2;
 	}
+	sem_post(&sem_pos);
 }
 
-void Robot_Thread::copyPositions(Robot robot1, Robot robot2, Balle balle)
+void Robot_Thread::copyPositions(Robot robot_1, Robot robot_2, Balle balle)
 {
-	this->robot1.pos_x = robot1.pos_x;
-	this->robot1.pos_y = robot1.pos_y;
-	this->robot1.angle = robot1.angle;
-	this->robot2.pos_x = robot2.pos_x;
-	this->robot2.pos_y = robot2.pos_y;
-	this->robot2.angle = robot2.angle;
+	sem_wait(&sem_pos);
+	robot1.pos_x = robot_1.pos_x;
+	robot1.pos_y = robot_1.pos_y;
+	robot1.angle = robot_1.angle;
+	robot2.pos_x = robot_2.pos_x;
+	robot2.pos_y = robot_2.pos_y;
+	robot2.angle = robot_2.angle;
+	sem_post(&sem_pos);
 	this->balle.pos_x = balle.pos_x;
 	this->balle.pos_y = balle.pos_y;
 	this->balle.vit_x = balle.vit_x;

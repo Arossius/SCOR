@@ -33,6 +33,7 @@ protected:
 	void run();
 	/* Méthode obligatoire pour exécuter le thread */
 	static void* exec(void* ordre_thread);
+	double calculerAngle(int posx, int posy);
 };
 
 #endif /* ORDRE_THREAD_H_ */
