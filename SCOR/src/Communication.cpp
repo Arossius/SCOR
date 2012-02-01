@@ -166,9 +166,8 @@ int Communication::ReceiveData(string & data)
 
 	// Pour faire bien, il faudrait sortir la condition de retour et
 	// la rendre indépendante du Khepera ... mais là on a pas le temps
-	while(data.length() < MIN_MSG_SIZE ||
-			( data[data.length()-2] != END_RCV_COMMAND_1
-			&& data[data.length()-1] != END_RCV_COMMAND_2));
+	while( ( data[data.length()-2] != END_RCV_COMMAND_1
+			 && data[data.length()-1] != END_RCV_COMMAND_2));
 
 	data.resize(data.length()-2);
 	return data.length();

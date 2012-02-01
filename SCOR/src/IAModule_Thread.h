@@ -27,7 +27,7 @@ public:
 	virtual ~IAModule_Thread();
 
 	/* lance un nouveau thread thread */
-	void Launch(void * arg);
+	void Launch();
 
 
 /* Méthodes protégées */

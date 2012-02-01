@@ -111,7 +111,7 @@ typedef Pas_Robots Msg_Com_Robot;
 #define BAL_COM_ROBOT "bal_com_robot"
 #define BAL_IA_ORDRE "bal_ia_ordre"
 #define BAL_ROBOT_IA "bal_robot_ia"
-#define BAL_ORDRE_COM "bal_ordre_com"
+#define BAL_ORDRE_COM "/bal_ordre_com"
 
 
 /*
@@ -131,6 +131,15 @@ const int LIGNE_DEFENSE =  LONGUEUR_TERRAIN/8;
 
 const Robot INIT_ROBOT1 = { LARGEUR_TERRAIN/4, LIGNE_DEFENSE, ANGLE_VISEE-90 };
 const Robot INIT_ROBOT2 = { 3*LARGEUR_TERRAIN/4, LIGNE_DEFENSE, ANGLE_VISEE + 90 };
+
+
+
+/*
+ * Descripteurs de fichiers des deux robots
+ */
+#define FICHIER_ROBOT_1 "/dev/ttyUSB0"
+#define FICHIER_ROBOT_2 "/dev/ttyUSB1"
+
 
 
 #endif /* UTILS_H_ */
