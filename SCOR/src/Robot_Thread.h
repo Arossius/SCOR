@@ -12,7 +12,7 @@
 #include "Utils.h"
 
 const double CONVERSION_LONGUEUR = 1.0;
-const double CONVERSION_ANGLE = 1.0;
+const double CONVERSION_ANGLE = 0.171428; // Converti un pas en angle (en degré)
 
 class Robot_Thread
 {
