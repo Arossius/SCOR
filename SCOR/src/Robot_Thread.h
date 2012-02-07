@@ -11,7 +11,7 @@
 #include <mqueue.h>
 #include "Utils.h"
 
-const double CONVERSION_LONGUEUR = 1.0;
+const double CONVERSION_LONGUEUR = 0.04; // Converti un pas en distance (en unité de vidéo)
 const double CONVERSION_ANGLE = 0.171428; // Converti un pas en angle (en degré)
 
 class Robot_Thread

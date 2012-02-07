@@ -62,6 +62,7 @@ void Ordre_Thread::run()
 	for ( ; ; )
 	{
 		mq_receive(bal_ia_ordre, (char*)&msg_IA_Ordre, sizeof(Msg_IA_Ordre), NULL);
+		std::cout << "j'ai reçu un message (ordre)" << std::endl;
 		double angle = 0.0;
 		double diff_angle = 0.0;
 		int dist_x;
@@ -113,7 +114,7 @@ void Ordre_Thread::run()
 			break;
 		case Shoot_Left :
 			angle = atan2(msg_IA_Ordre.ordre_robot1.robot.pos_y - robot1.pos_y, msg_IA_Ordre.ordre_robot1.robot.pos_x - robot1.pos_x) * 180 / M_PI;
-			diff_angle = angle - robot1.angle;
+			diff_angle = angle - robot1.angle + 180; // On rajoute 180 degré parce que le robot recule.
 			if (diff_angle > 180)
 			{
 				diff_angle -= 360;
@@ -128,8 +129,8 @@ void Ordre_Thread::run()
 			dist_x = robot1.pos_x - msg_IA_Ordre.ordre_robot1.robot.pos_x;
 			dist_y = robot1.pos_y - msg_IA_Ordre.ordre_robot1.robot.pos_y;
 			dist = sqrt(dist_x * dist_x + dist_y * dist_y);
-			msg_Ordre_Com.ordres[1].robot1.pas_droite = dist / CONVERSION_LONGUEUR;
-			msg_Ordre_Com.ordres[1].robot1.pas_gauche = dist / CONVERSION_LONGUEUR;
+			msg_Ordre_Com.ordres[1].robot1.pas_droite = - dist / CONVERSION_LONGUEUR;
+			msg_Ordre_Com.ordres[1].robot1.pas_gauche = - dist / CONVERSION_LONGUEUR;
 
 			diff_angle = msg_IA_Ordre.ordre_robot1.robot.angle - angle;
 			if (diff_angle > 180)
@@ -144,13 +145,13 @@ void Ordre_Thread::run()
 			msg_Ordre_Com.ordres[2].robot1.pas_droite = diff_angle / CONVERSION_ANGLE; // TODO vérifier qu'il faut bien mettre un pas positif
 			msg_Ordre_Com.ordres[2].robot1.pas_gauche = - diff_angle / CONVERSION_ANGLE;
 
-			msg_Ordre_Com.ordres[3].robot1.pas_droite = - 90 / CONVERSION_ANGLE;
-			msg_Ordre_Com.ordres[3].robot1.pas_gauche = 90 / CONVERSION_ANGLE;
+			msg_Ordre_Com.ordres[3].robot1.pas_droite = - 270 / CONVERSION_ANGLE;
+			msg_Ordre_Com.ordres[3].robot1.pas_gauche = 270 / CONVERSION_ANGLE;
 
 			break;
 		case Shoot_Right:
 			angle = atan2(msg_IA_Ordre.ordre_robot1.robot.pos_y - robot1.pos_y, msg_IA_Ordre.ordre_robot1.robot.pos_x - robot1.pos_x) * 180 / M_PI;
-			diff_angle = angle - robot1.angle;
+			diff_angle = angle - robot1.angle + 180;
 			if (diff_angle > 180)
 			{
 				diff_angle -= 360;
@@ -165,8 +166,8 @@ void Ordre_Thread::run()
 			int dist_x = robot1.pos_x - msg_IA_Ordre.ordre_robot1.robot.pos_x;
 			int dist_y = robot1.pos_y - msg_IA_Ordre.ordre_robot1.robot.pos_y;
 			int dist = sqrt(dist_x * dist_x + dist_y * dist_y);
-			msg_Ordre_Com.ordres[1].robot1.pas_droite = dist / CONVERSION_LONGUEUR;
-			msg_Ordre_Com.ordres[1].robot1.pas_gauche = dist / CONVERSION_LONGUEUR;
+			msg_Ordre_Com.ordres[1].robot1.pas_droite = - dist / CONVERSION_LONGUEUR;
+			msg_Ordre_Com.ordres[1].robot1.pas_gauche = - dist / CONVERSION_LONGUEUR;
 
 			diff_angle = msg_IA_Ordre.ordre_robot1.robot.angle - angle;
 			if (diff_angle > 180)
@@ -181,8 +182,8 @@ void Ordre_Thread::run()
 			msg_Ordre_Com.ordres[2].robot1.pas_droite = diff_angle / CONVERSION_ANGLE; // TODO vérifier qu'il faut bien mettre un pas positif
 			msg_Ordre_Com.ordres[2].robot1.pas_gauche = - diff_angle / CONVERSION_ANGLE;
 
-			msg_Ordre_Com.ordres[3].robot1.pas_droite = 90 / CONVERSION_ANGLE;
-			msg_Ordre_Com.ordres[3].robot1.pas_gauche = - 90 / CONVERSION_ANGLE;
+			msg_Ordre_Com.ordres[3].robot1.pas_droite = 270 / CONVERSION_ANGLE;
+			msg_Ordre_Com.ordres[3].robot1.pas_gauche = - 270 / CONVERSION_ANGLE;
 
 			break;
 		}
@@ -230,7 +231,7 @@ void Ordre_Thread::run()
 			break;
 		case Shoot_Left :
 			angle = atan2(msg_IA_Ordre.ordre_robot2.robot.pos_y - robot2.pos_y, msg_IA_Ordre.ordre_robot2.robot.pos_x - robot2.pos_x) * 180 / M_PI;
-			diff_angle = angle - robot2.angle;
+			diff_angle = angle - robot2.angle + 180;
 			if (diff_angle > 180)
 			{
 				diff_angle =- 360;
@@ -245,8 +246,8 @@ void Ordre_Thread::run()
 			dist_x = robot2.pos_x - msg_IA_Ordre.ordre_robot2.robot.pos_x;
 			dist_y = robot2.pos_y - msg_IA_Ordre.ordre_robot2.robot.pos_y;
 			dist = sqrt(dist_x * dist_x + dist_y * dist_y);
-			msg_Ordre_Com.ordres[1].robot2.pas_droite = dist / CONVERSION_LONGUEUR;
-			msg_Ordre_Com.ordres[1].robot2.pas_gauche = dist / CONVERSION_LONGUEUR;
+			msg_Ordre_Com.ordres[1].robot2.pas_droite = - dist / CONVERSION_LONGUEUR;
+			msg_Ordre_Com.ordres[1].robot2.pas_gauche = - dist / CONVERSION_LONGUEUR;
 
 			diff_angle = msg_IA_Ordre.ordre_robot2.robot.angle - angle;
 			if (diff_angle > 180)
@@ -261,13 +262,13 @@ void Ordre_Thread::run()
 			msg_Ordre_Com.ordres[2].robot2.pas_droite = diff_angle / CONVERSION_ANGLE; // TODO vérifier qu'il faut bien mettre un pas positif
 			msg_Ordre_Com.ordres[2].robot2.pas_gauche = - diff_angle / CONVERSION_ANGLE;
 
-			msg_Ordre_Com.ordres[3].robot2.pas_droite = - 90 / CONVERSION_ANGLE;
-			msg_Ordre_Com.ordres[3].robot2.pas_gauche = 90 / CONVERSION_ANGLE;
+			msg_Ordre_Com.ordres[3].robot2.pas_droite = - 270 / CONVERSION_ANGLE;
+			msg_Ordre_Com.ordres[3].robot2.pas_gauche = 270 / CONVERSION_ANGLE;
 
 			break;
 		case Shoot_Right:
 			angle = atan2(msg_IA_Ordre.ordre_robot2.robot.pos_y - robot2.pos_y, msg_IA_Ordre.ordre_robot2.robot.pos_x - robot2.pos_x) * 180 / M_PI;
-			diff_angle = angle - robot2.angle;
+			diff_angle = angle - robot2.angle + 180;
 			if (diff_angle > 180)
 			{
 				diff_angle -= 360;
@@ -282,8 +283,8 @@ void Ordre_Thread::run()
 			int dist_x = robot2.pos_x - msg_IA_Ordre.ordre_robot2.robot.pos_x;
 			int dist_y = robot2.pos_y - msg_IA_Ordre.ordre_robot2.robot.pos_y;
 			int dist = sqrt(dist_x * dist_x + dist_y * dist_y);
-			msg_Ordre_Com.ordres[1].robot2.pas_droite = dist / CONVERSION_LONGUEUR;
-			msg_Ordre_Com.ordres[1].robot2.pas_gauche = dist / CONVERSION_LONGUEUR;
+			msg_Ordre_Com.ordres[1].robot2.pas_droite = - dist / CONVERSION_LONGUEUR;
+			msg_Ordre_Com.ordres[1].robot2.pas_gauche = - dist / CONVERSION_LONGUEUR;
 
 			diff_angle = msg_IA_Ordre.ordre_robot2.robot.angle - angle;
 			if (diff_angle > 180)
@@ -298,11 +299,12 @@ void Ordre_Thread::run()
 			msg_Ordre_Com.ordres[2].robot2.pas_droite = diff_angle / CONVERSION_ANGLE; // TODO vérifier qu'il faut bien mettre un pas positif
 			msg_Ordre_Com.ordres[2].robot2.pas_gauche = - diff_angle / CONVERSION_ANGLE;
 
-			msg_Ordre_Com.ordres[3].robot2.pas_droite = 90 / CONVERSION_ANGLE;
-			msg_Ordre_Com.ordres[3].robot2.pas_gauche = - 90 / CONVERSION_ANGLE;
+			msg_Ordre_Com.ordres[3].robot2.pas_droite = 270 / CONVERSION_ANGLE;
+			msg_Ordre_Com.ordres[3].robot2.pas_gauche = - 270 / CONVERSION_ANGLE;
 
 			break;
 		}
 		mq_send(bal_ordre_com, (char*)&msg_Ordre_Com, sizeof(Msg_Ordre_Com), 0);
+		std::cout << "j'ai envoyé un message (ordre)" << std::endl;
 	}
 }

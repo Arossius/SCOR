@@ -62,7 +62,7 @@ struct Msg_Vid_Robot
 /* Structure définissant les messages échangés dans la boîte aux lettres
  * Bal_Robot_IA */
 
-typedef Msg_Vid_Robot Msg_Robot_IA ;
+typedef Msg_Vid_Robot Msg_Robot_IA;
 
 /* Structure définissant les messages échangés dans la boîte aux lettres
  * Bal_IA_Ordre */
@@ -117,7 +117,7 @@ typedef Pas_Robots Msg_Com_Robot;
 /*
  * Dimensions du robot
  */
-const int RAYON_ROBOT = 50;
+const int RAYON_ROBOT = 10;
 const int ANGLE_VISEE = 90;
 
 /* Définition de la carte en coordonnées (X,Y) de déplacement
