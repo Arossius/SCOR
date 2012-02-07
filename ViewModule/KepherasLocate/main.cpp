@@ -15,13 +15,9 @@ using namespace cv;
 
 
 int main(int argc, char * argv[]) {
-	/* On lit du fichier*/
-	CvCapture * capture = cvCaptureFromAVI("/home/jetmir/out.avi.old");
-	IplImage * img = cvQueryFrame(capture);
-	FieldViewer *fieldViewer = new FieldViewer(img);
-	fieldViewer->ShowVideo(capture);
-	//fieldViewer->FindKephD(img);
-
+	FieldViewer field = FieldViewer();
+	field.Launch();
+	sleep(20);
 	return 0;
 }
 
