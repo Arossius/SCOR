@@ -122,10 +122,10 @@ E_DIRECTION_BALLE IAModule_Thread::DefinirDirectionBalle(Balle balle)
 	 * à moins de 2, la vitesse est considérée comme nulle
 	 * on utilise un carré pour la valeur absolue
 	 */
-	if ((balle.vit_y*balle.vit_y) < 4)
+	if ((balle.vit_y*balle.vit_y)+(balle.vit_x*balle.vit_x) < 4)
 		return STOPPED;
 
-	if (balle.vit_y < 0)
+	if (balle.vit_y > 0)
 		return COMING;
 
 

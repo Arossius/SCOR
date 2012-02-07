@@ -30,6 +30,12 @@ Communication_Thread::Communication_Thread()
 	robot2 = new Communication();
 	printf("Communication Thread : opening Second Khepera : %i\n", robot2->Open(FICHIER_ROBOT_2));
 
+	// robot1 = new ComKh()
+	// printf("Communication Thread : opening First Khepera  : %i\n", robot1->init(FICHIER_ROBOT_1));
+
+	// robot2 = new ComKh();
+	// printf("Communication Thread : opening Second Khepera  : %i\n", robot2->init(FICHIER_ROBOT_2));
+
 
 	for (int i = 0; i<4; i++)
 	{
@@ -207,6 +213,9 @@ bool Communication_Thread::setSpeed(Communication *robot, Pas_Robot pas)
 	string recv;
 	robot->ReceiveData(recv);
 	//printf(recv.c_str());
+
+	//robot->sendMsg(msg.c_str(), buffer, 500);
+
 	if (recv[0] == 'd')
 		return true;
 
@@ -226,6 +235,8 @@ Pas_Robot Communication_Thread::getSpeed(Communication *robot)
 	/*
 	 * réponse de la forme : e,pas_gauche,pas_droit\n
 	 */
+
+	//robot->sendMsg(msg.c_str(), buffer, 500);
 	Pas_Robot pas;
 	pas.pas_gauche = atoi( recv.substr(2, recv.find_last_of(',')).c_str() );
 	pas.pas_droite = atoi( recv.substr(recv.find_last_of(','),recv.length()).c_str()-1 );
@@ -246,6 +257,7 @@ Pas_Robot Communication_Thread::getPosition(Communication *robot)
 	string recv;
 	robot->ReceiveData(recv);
 
+	//robot->sendMsg(msg.c_str(), buffer, 500);
 	/*
 	 * réponse de la forme : e,pas_gauche,pas_droit\n
 	 */
@@ -276,6 +288,8 @@ bool Communication_Thread::setObjectif(Communication *robot, Pas_Robot pas)
 	string recv;
 	robot->ReceiveData(recv);
 	//printf("recv : %s", recv.c_str());
+
+	//robot->sendMsg(msg.c_str(), buffer, 500);
 	if (recv[0] == 'c')
 		return true;
 
@@ -293,6 +307,9 @@ bool Communication_Thread::resetPosition(Communication *robot)
 	//préparation de la réception
 	string recv;
 	robot->ReceiveData(recv);
+
+	//robot->sendMsg(msg.c_str(), buffer, 500);
+
 	if (recv[0] == 'g')
 		return true;
 
