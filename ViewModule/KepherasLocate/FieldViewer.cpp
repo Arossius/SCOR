@@ -10,7 +10,7 @@
 CvPoint p_corners[4];
 bool waiting_corners;
 int corners;
-int mB_val = 50, mW_val = 39, mR_val = 100;
+int mB_val = 28, mW_val = 42, mR_val = 60;
 
 void on_mouse(int event, int x, int y, int flags, void* param) {
 	if (event == CV_EVENT_LBUTTONDOWN) {
@@ -45,121 +45,127 @@ void FieldViewer::Allocate_imgs() {
 	rightK = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
 	blue = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
 	white = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
+	red = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
 	tmpIm = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 3);
 	warped = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 3);
 }
 
-void FieldViewer::ShowVideo(CvCapture * capture) {
+void FieldViewer::ShowVideo() {
+	Msg_Vid_Robot msg_vid_robot;
+	float velocity = 0;
+	int key = -1;
 	cvNamedWindow("ShowVid", CV_WINDOW_NORMAL);
 	cvShowImage("ShowVid", warped);
-	while (true) {
+	do {
 		img = cvQueryFrame(capture);
 		warpImage(img, warped, mmat);
 		FindKD();
 		FindKG();
-
+		FindBall(warped);
+		balle.pos_x = ball.posB.x;
+		balle.pos_y = ball.posB.y;
+		balle.vit_x = (ball.posB.x - ball.prevB.x)*15;
+		balle.vit_y = (ball.posB.y - ball.prevB.y)*15;
 		CvFont font;
-		double hScale = 1.0;
-		double vScale = 1.0;
+		double hScale = 0.5;
+		double vScale = 0.5;
 		int lineWidth = 1;
-		cvInitFont(&font, CV_FONT_HERSHEY_SIMPLEX | CV_FONT_ITALIC, hScale,
-				vScale, 0, lineWidth);
-		char v[40] = { 0 };
-		char v2[40] = { 0 };
-		sprintf(v, "%s %.2f", "K1", kephD.angle);
-		sprintf(v2, "%s %.2f", "K2", kephG.angle);
+		CvPoint print;
 
+		cvInitFont(&font, CV_FONT_HERSHEY_TRIPLEX | CV_FONT_ITALIC, hScale,
+				vScale, 0, lineWidth);
+		char v[80] = { 0 };
+		char v2[80] = { 0 };
+		sprintf(v, "%s Blue %d %d Blanche %d %d angle %6.3f", "K1",
+				kephD.posB.x, kephD.posB.y, kephD.posW.x, kephD.posW.y,
+				kephD.angle);
+		sprintf(v2, "%s Blue %d %d Blanche %d %d angle %6.3f", "K2",
+				kephG.posB.x, kephG.posB.y, kephG.posW.x, kephG.posW.y,
+				kephG.angle);
+		print.x = 10;
+		print.y = 20;
+		cvPutText(warped, v, print, &font, cvScalar(255, 255, 0));
+		print.y = 40;
+		cvPutText(warped, v2, print, &font, cvScalar(255, 255, 0));
+
+		velocity = sqrt(pow((ball.posB.x - ball.prevB.x), 2) + pow((ball.posB.y
+				- ball.prevB.y), 2));
+
+		sprintf(v, "%s %4.2f", "Ball here: ", velocity);
+
+		cvPutText(warped, v, ball.posB, &font, cvScalar(255, 255, 0));
+
+		sprintf(v, "K1");
 		cvPutText(warped, v, kephD.posW, &font, cvScalar(255, 255, 0));
-		cvPutText(warped, v2, kephG.posB, &font, cvScalar(255, 255, 0));
+		sprintf(v, "K2");
+		cvPutText(warped, v, kephG.posW, &font, cvScalar(255, 255, 0));
+
 		cvShowImage("ShowVid", warped);
-		cvWaitKey(1000 / 15);
-	}
+		key = cvWaitKey(1000 / 15);
+		msg_vid_robot.robot1 = kephR;
+		msg_vid_robot.robot2 = kephL;
+		msg_vid_robot.balle = balle;
+		mq_send(bal_video_robot, (char*)&msg_vid_robot, sizeof(Msg_Vid_Robot), 0);
+	} while (key == -1);
 	cvDestroyWindow("ShowVid");
 }
 
 void FieldViewer::FindKD() {
-	kephD = FindKeph(warped, 0, warped->height / 2, warped->width / 2,
+	kephD = FindKeph(warped, 0, warped->height / 2, warped->width / 2 + 15,
 			warped->width);
-	float m, mP;
-	if ((kephD.posW.x - kephD.posB.x))
-		m = (kephD.posW.y - kephD.posB.y) / (kephD.posW.x - kephD.posB.x);
-	if (m != 0)
-		mP = -1 / m;
-	kephD.angle = atan(mP) * 180 / PI;
+
+	kephD.angle = atan2(kephD.posW.x - kephD.posB.x, kephD.posW.y
+			- kephD.posB.y) * 180 / PI;
+	kephR.angle = kephD.angle;
+	kephR.pos_x = (kephD.posB.x + kephD.posW.x) / 2;
+	kephR.pos_y = (kephD.posB.y + kephD.posW.y) / 2;
 }
 
 void FieldViewer::FindKG() {
+
 	kephG = FindKeph(warped, warped->height / 2, warped->height, warped->width
-			/ 2, warped->width);
-	float m, mP;
-	if ((kephG.posW.x - kephG.posB.x))
-		m = (kephG.posW.y - kephG.posB.y) / (kephG.posW.x - kephG.posB.x);
-	if (m != 0)
-		mP = -1 / m;
-	try {
-		kephG.angle = atan(mP) * 180 / PI;
-	} catch (Exception ex) {
-		cout << ex.err;
-	}
+			/ 2 + 15, warped->width);
+	kephG.angle = atan2(kephG.posW.x - kephG.posB.x, kephG.posW.y
+			- kephG.posB.y) * 180 / PI;
+	kephL.angle = kephG.angle;
+	kephL.pos_x = (kephG.posB.x + kephG.posW.x) / 2;
+	kephL.pos_y = (kephG.posB.y + kephG.posW.y) / 2;
 }
 
-FieldViewer::FieldViewer(IplImage * imgL) {
+FieldViewer::FieldViewer() {
+	bal_com_robot = mq_open(BAL_COM_ROBOT, O_RDONLY | O_CREAT, S_IRWXU, NULL);
+	bal_video_robot = mq_open(BAL_VIDEO_ROBOT, O_RDONLY | O_NONBLOCK | O_CREAT,
+			S_IRWXU, NULL);
+	bal_robot_ia = mq_open(BAL_ROBOT_IA, O_WRONLY | O_CREAT, S_IRWXU, NULL);
+
+	/* On lit du fichier*/
+	//= cvCaptureFromAVI("/home/jetmir/out2.avi");
+	capture = cvCaptureFromAVI("/home/jetmir/out2.avi");//= cvCaptureFromCAM(1);
+	//    cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH,640);
+	//	cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT,480);
+
+	IplImage * imgL = cvQueryFrame(capture);
+
 	corners = 0;
 	waiting_corners = true;
 	moments = (CvMoments*) malloc(sizeof(CvMoments));
 	img = imgL;
+	ball.posB.x = 0;
+	ball.posB.y = 0;
+	ball.prevB.x = 0;
+	ball.prevB.y = 0;
+
 	Allocate_imgs();
-	compute_Warp(img);
+
+	compute_Warp(imgL);
+	setupColors(warped);
 }
 
-KephPos FieldViewer::FindKeph(IplImage *imgL, int x1, int x2, int y1, int y2) {
-	/*cvNamedWindow("KephD", CV_WINDOW_AUTOSIZE);
-
-	 IplImage *tpl = cvLoadImage("/home/jetmir/red-ball.jpg");
-
-	 IplImage *res = cvCreateImage(cvSize(imgL->width - tpl->width + 1,
-	 imgL->height - tpl->height + 1), IPL_DEPTH_32F, 1);
-
-	 perform template matching
-	 cout << imgL->width << "," << imgL->height << "\n";
-	 cout << tpl->width << "," << tpl->height << "\n";
-	 cout << res->width << "," << res->height << "\n";
-
-	 cvCopyImage(imgL,img);
-	 try {
-	 cvWarpPerspective(img, warped, mmat);
-	 } catch (Exception ex) {
-	 cout << "Exception in performWarp()\n";
-	 }
-
-	 //	CvRect rect = cvRect(warped->width/2, 0, warped->width, warped->height/2);
-
-	 //	cvSetImageROI(warped, rect);
-
-	 cvMatchTemplate(warped, tpl, res, CV_TM_SQDIFF);
-	 find best matches location
-	 CvPoint minloc, maxloc;
-	 double minval, maxval;
-	 cvMinMaxLoc(res, &minval, &maxval, &minloc, &maxloc, 0);
-
-	 draw rectangle
-	 cvRectangle(warped, cvPoint(minloc.x, minloc.y), cvPoint(minloc.x
-	 + tpl->width, minloc.y + tpl->height), CV_RGB(255, 0, 0), 1, 0, 0);
-
-	 // cvResetImageROI(img);
-	 cvShowImage("KephD", warped);
-	 cvWaitKey(10000);*/
-
-	KephPos position;
+Position FieldViewer::FindKeph(IplImage *imgL, int x1, int x2, int y1, int y2) {
+	Position position;
 	int img_step = warped->widthStep;
 	int img_channels = warped->nChannels;
 	uchar * img_data = (uchar *) warped->imageData;
-	/*
-	 cvNamedWindow("Blue", CV_WINDOW_NORMAL);
-	 cvCreateTrackbar("minB", "Blue", &mB_val, 256, onTrackbarSlideB);
-
-	 cvNamedWindow("White", CV_WINDOW_NORMAL);
-	 cvCreateTrackbar("minW", "White", &mW_val, 256, onTrackbarSlideW);*/
 
 	blue->origin = warped->origin;
 	int filtered_step = blue->widthStep;
@@ -171,13 +177,12 @@ KephPos FieldViewer::FindKeph(IplImage *imgL, int x1, int x2, int y1, int y2) {
 	int filtered_channels_w = white->nChannels;
 	uchar * filtered_data_w = (uchar *) white->imageData;
 
-	for (int i = 0; i < x2; i++) {
-		for (int j = 0; j < y2; j++) {
+	for (int i = x1; i < x2; i++) {
+		for (int j = y1; j < y2; j++) {
 			if ((((img_data[i * img_step + j * img_channels]) > (mB_val
 					+ img_data[i * img_step + j * img_channels + 1]))
 					&& ((img_data[i * img_step + j * img_channels]) > (mB_val
-							+ img_data[i * img_step + j * img_channels + 2])))
-					&& i > x1 && j > y1)
+							+ img_data[i * img_step + j * img_channels + 2]))))
 				filtered_data_b[i * filtered_step + j * filtered_channels]
 						= 255;
 			else {
@@ -186,7 +191,7 @@ KephPos FieldViewer::FindKeph(IplImage *imgL, int x1, int x2, int y1, int y2) {
 			if ((img_data[i * img_step + j * img_channels] + mW_val >= 255
 					&& img_data[i * img_step + j * img_channels + 1] + mW_val
 							>= 255 && img_data[i * img_step + j * img_channels
-					+ 2] + mW_val >= 255) && i > x1 && j > y1)
+					+ 2] + mW_val >= 255))
 				filtered_data_w[i * filtered_step_w + j * filtered_channels_w]
 						= 255;
 			else
@@ -194,6 +199,7 @@ KephPos FieldViewer::FindKeph(IplImage *imgL, int x1, int x2, int y1, int y2) {
 						= 0;
 		}
 	}
+
 	cvErode(blue, blue, 0, 2);
 	cvMoments(blue, moments, 1);
 
@@ -201,7 +207,7 @@ KephPos FieldViewer::FindKeph(IplImage *imgL, int x1, int x2, int y1, int y2) {
 	double moment10 = cvGetSpatialMoment(moments, 1, 0);
 	double moment01 = cvGetSpatialMoment(moments, 0, 1);
 	double area = cvGetCentralMoment(moments, 0, 0);
-	cvErode(white, white, 0, 4);
+	cvErode(white, white, 0, 3);
 	cvMoments(white, moments, 1);
 	position.posB.x = (int) moment10 / area;
 	position.posB.y = (int) moment01 / area;
@@ -217,8 +223,127 @@ KephPos FieldViewer::FindKeph(IplImage *imgL, int x1, int x2, int y1, int y2) {
 	return position;
 }
 
+void FieldViewer::FindBall(IplImage * imgL) {
+	int x = imgL->width, y = imgL->height;
+	int img_step = imgL->widthStep;
+	int img_channels = imgL->nChannels;
+	uchar * img_data = (uchar *) imgL->imageData;
+
+	red->origin = imgL->origin;
+	int filtered_step_r = red->widthStep;
+	int filtered_channels_r = red->nChannels;
+	uchar * filtered_data_r = (uchar *) red->imageData;
+	int i = 0, j = 0;
+	for (i = 0; i < y; i++) {
+		for (j = 0; j < x; j++) {
+			if (((img_data[i * img_step + j * img_channels + 2]) > (mR_val
+					+ img_data[i * img_step + j * img_channels]))
+					&& ((img_data[i * img_step + j * img_channels + 2])
+							> (mR_val + img_data[i * img_step + j
+									* img_channels + 1])))
+				filtered_data_r[i * filtered_step_r + j * filtered_channels_r]
+						= 255;
+			else
+				filtered_data_r[i * filtered_step_r + j * filtered_channels_r]
+						= 0;
+		}
+	}
+	cvErode(red, red, 0, 1);
+	cvMoments(red, moments, 1);
+	double moment10 = cvGetSpatialMoment(moments, 1, 0);
+	double moment01 = cvGetSpatialMoment(moments, 0, 1);
+	double area = cvGetCentralMoment(moments, 0, 0);
+
+	ball.prevB.x = ball.posB.x;
+	ball.prevB.y = ball.posB.y;
+
+	ball.posB.x = (int) moment10 / area;
+	ball.posB.y = (int) moment01 / area;
+}
+
+void FieldViewer::setupColors(IplImage *img) {
+	int key = -1;
+	int x = img->width, y = img->height;
+	int img_step = img->widthStep;
+	int img_channels = img->nChannels;
+	uchar * img_data = (uchar *) img->imageData;
+
+	blue->origin = img->origin;
+	int filtered_step = blue->widthStep;
+	int filtered_channels = blue->nChannels;
+	uchar * filtered_data_b = (uchar *) blue->imageData;
+
+	white->origin = img->origin;
+	int filtered_step_w = white->widthStep;
+	int filtered_channels_w = white->nChannels;
+	uchar * filtered_data_w = (uchar *) white->imageData;
+
+	red->origin = img->origin;
+	int filtered_step_r = red->widthStep;
+	int filtered_channels_r = red->nChannels;
+	uchar * filtered_data_r = (uchar *) red->imageData;
+
+	cvNamedWindow("WhiteSetup", CV_WINDOW_NORMAL);
+	cvNamedWindow("Image", CV_WINDOW_NORMAL);
+	cvNamedWindow("BlueSetup", CV_WINDOW_NORMAL);
+	cvNamedWindow("RedSetup", CV_WINDOW_NORMAL);
+	createTrackbar("WhiteS", "WhiteSetup", &mW_val, 256, NULL);
+	createTrackbar("BlueS", "BlueSetup", &mB_val, 256, NULL);
+	createTrackbar("RedS", "RedSetup", &mR_val, 256, NULL);
+	cvShowImage("Image", img);
+	do {
+		for (int i = 0; i < y; i++) {
+			for (int j = 0; j < x; j++) {
+				if ((((img_data[i * img_step + j * img_channels]) > (mB_val
+						+ img_data[i * img_step + j * img_channels + 1]))
+						&& ((img_data[i * img_step + j * img_channels])
+								> (mB_val + img_data[i * img_step + j
+										* img_channels + 2]))))
+					filtered_data_b[i * filtered_step + j * filtered_channels]
+							= 255;
+				else
+					filtered_data_b[i * filtered_step + j * filtered_channels]
+							= 0;
+				if ((img_data[i * img_step + j * img_channels] + mW_val >= 255
+						&& img_data[i * img_step + j * img_channels + 1]
+								+ mW_val >= 255 && img_data[i * img_step + j
+						* img_channels + 2] + mW_val >= 255))
+					filtered_data_w[i * filtered_step_w + j
+							* filtered_channels_w] = 255;
+				else
+					filtered_data_w[i * filtered_step_w + j
+							* filtered_channels_w] = 0;
+
+				if (((img_data[i * img_step + j * img_channels + 2]) > (mR_val
+						+ img_data[i * img_step + j * img_channels]))
+						&& ((img_data[i * img_step + j * img_channels + 2])
+								> (mR_val + img_data[i * img_step + j
+										* img_channels + 1])))
+					filtered_data_r[i * filtered_step_r + j
+							* filtered_channels_r] = 255;
+				else
+					filtered_data_r[i * filtered_step_r + j
+							* filtered_channels_r] = 0;
+
+			}
+		}
+		//cvErode(white, white, 0, 3);
+		cvEqualizeHist(white, white);
+		cvShowImage("WhiteSetup", white);
+		//cvErode(blue, blue, 0, 1);
+		cvEqualizeHist(blue, blue);
+		cvShowImage("BlueSetup", blue);
+		//cvErode(red, red, 0, 1);
+		cvShowImage("RedSetup", red);
+
+		key = cvWaitKey(300);
+	} while (key == -1);
+	cvDestroyAllWindows();
+
+}
+
 FieldViewer::~FieldViewer() {
-	// TODO Auto-generated destructor stub
+	cvReleaseCapture(&capture);
 }
 
 bool loadPoints(CvPoint c[4]) {
@@ -245,6 +370,20 @@ void savePoints(CvPoint c[4]) {
 	}
 }
 
+void FieldViewer::run() {
+	ShowVideo();
+}
+
+void* FieldViewer::exec(void* view_thread) {
+	FieldViewer* thread = (FieldViewer*) view_thread;
+	thread->run();
+	return 0;
+}
+
+void FieldViewer::Launch() {
+	pthread_create(&thread, NULL, FieldViewer::exec, this);
+}
+
 void FieldViewer::compute_Warp(IplImage * img) {
 	if (loadPoints(p_corners)) {
 		CvPoint2D32f c1[4] = { cvPoint2D32f(p_corners[0].x, p_corners[0].y),
@@ -258,6 +397,11 @@ void FieldViewer::compute_Warp(IplImage * img) {
 
 		mmat = cvCreateMat(3, 3, CV_32FC1);
 		mmat = cvGetPerspectiveTransform(c1, c2, mmat);
+		try {
+			cvWarpPerspective(img, warped, mmat);
+		} catch (Exception ex) {
+			cout << "Exception in performWarp()\n";
+		}
 	} else {
 		cvNamedWindow("Terrain", CV_WINDOW_AUTOSIZE);
 		cvSetMouseCallback("Terrain", on_mouse);
