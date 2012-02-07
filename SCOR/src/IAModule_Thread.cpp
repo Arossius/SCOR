@@ -125,7 +125,7 @@ E_DIRECTION_BALLE IAModule_Thread::DefinirDirectionBalle(Balle balle)
 	if ((balle.vit_y*balle.vit_y)+(balle.vit_x*balle.vit_x) < 4)
 		return STOPPED;
 
-	if (balle.vit_y > 0)
+	if (balle.vit_y < 0)
 		return COMING;
 
 

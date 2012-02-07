@@ -20,8 +20,14 @@ Communication_Thread::Communication_Thread()
 
 	bal_ordre_com = mq_open(BAL_ORDRE_COM, O_RDONLY | O_NONBLOCK | O_CREAT, S_IRWXU, &att);
 
+	Msg_Ordre_Com msg_ordre_com;
+	while (mq_receive(bal_ordre_com, (char*)&msg_ordre_com, sizeof(Msg_Ordre_Com), NULL)!= -1) {}
+
+
 	att.mq_msgsize = sizeof(Msg_Com_Robot);
-	bal_com_robot = mq_open(BAL_COM_ROBOT, O_WRONLY | O_CREAT, S_IRWXU, &att);
+	bal_com_robot = mq_open(BAL_COM_ROBOT, O_WRONLY | O_CREAT | O_NONBLOCK, S_IRWXU, &att);
+
+
 
 
 	robot1 = new Communication();
@@ -30,12 +36,13 @@ Communication_Thread::Communication_Thread()
 	robot2 = new Communication();
 	printf("Communication Thread : opening Second Khepera : %i\n", robot2->Open(FICHIER_ROBOT_2));
 
-	// robot1 = new ComKh()
-	// printf("Communication Thread : opening First Khepera  : %i\n", robot1->init(FICHIER_ROBOT_1));
+	/*robot1 = new ComKh();
+	printf("Communication Thread : opening First Khepera  : %i\n", robot1->init(FICHIER_ROBOT_1));
+	robot1->EmptyBuffer();
 
-	// robot2 = new ComKh();
-	// printf("Communication Thread : opening Second Khepera  : %i\n", robot2->init(FICHIER_ROBOT_2));
-
+	robot2 = new ComKh();
+	printf("Communication Thread : opening Second Khepera  : %i\n", robot2->init(FICHIER_ROBOT_2));
+	robot2->EmptyBuffer();*/
 
 	for (int i = 0; i<4; i++)
 	{
@@ -90,15 +97,16 @@ void* Communication_Thread::exec(void* Com_thread)
 void Communication_Thread::run()
 {
 	Msg_Ordre_Com msg_ordre_com;
+
+	resetPosition(robot1);
+	resetPosition(robot2);
+
 	for(;;)
 	{
 		// si on a reçu un message
 		//printf("tache : %d\n",bal_ordre_com);
-
 		if (mq_receive(bal_ordre_com, (char*)&msg_ordre_com, sizeof(Msg_Ordre_Com), NULL)!= -1)
 		{
-			printf("dans if\n");
-
 
 			liste = msg_ordre_com;
 			ordreCourantRobot1 = 0;
@@ -112,17 +120,27 @@ void Communication_Thread::run()
 
 
 			Pas_Robot reinit = {0,0};
+			if (msg_ordre_com.ordres[0].robot1.pas_droite == 0 && msg_ordre_com.ordres[0].robot1.pas_gauche == 0)
+			{
+				ordreCourantRobot1 = 4;
+			}else
+			{
+				setSpeed(robot1,reinit);
+				resetPosition(robot1);
+				setObjectif(robot1, liste.ordres[ordreCourantRobot1].robot1);
+			}
 
+			if (msg_ordre_com.ordres[0].robot2.pas_droite == 0 && msg_ordre_com.ordres[0].robot2.pas_gauche == 0)
+			{
+				ordreCourantRobot2 = 4;
+			}
+			else
+			{
+				setSpeed(robot2,reinit);
+				resetPosition(robot2);
+				setObjectif(robot2, liste.ordres[ordreCourantRobot2].robot2);
+			}
 
-			setSpeed(robot1,reinit);
-			setSpeed(robot2,reinit);
-
-
-			resetPosition(robot1);
-			resetPosition(robot2);
-
-			setObjectif(robot1, liste.ordres[ordreCourantRobot1].robot1);
-			setObjectif(robot2, liste.ordres[ordreCourantRobot2].robot2);
 
 
 
@@ -184,17 +202,22 @@ void Communication_Thread::run()
 			}
 
 			Msg_Com_Robot msg_com_robot;
+			if ((avanceRobot1.pas_droite != 0) || (avanceRobot1.pas_gauche != 0) ||
+				(avanceRobot2.pas_gauche != 0) || (avanceRobot2.pas_droite != 0))
+			{
+				msg_com_robot.robot1 = avanceRobot1;
+				msg_com_robot.robot2 = avanceRobot2;
 
-			msg_com_robot.robot1 = avanceRobot1;
-			msg_com_robot.robot2 = avanceRobot2;
-
-			//mq_send(bal_com_robot, (char*)&msg_com_robot, sizeof(Msg_Com_Robot), 0);
+//				printf("bal_com_robot %d\n",bal_com_robot);
+				mq_send(bal_com_robot, (char*)&msg_com_robot, sizeof(Msg_Com_Robot), 0);
+	//			printf("après mq_send\n");
+			}
 
 		}
 		//sinon
 
 
-		usleep(500000);
+		usleep(50000);
 	}
 }
 
@@ -216,7 +239,7 @@ bool Communication_Thread::setSpeed(Communication *robot, Pas_Robot pas)
 
 	//robot->sendMsg(msg.c_str(), buffer, 500);
 
-	if (recv[0] == 'd')
+	if (buffer[0] == 'd')
 		return true;
 
 
@@ -226,7 +249,7 @@ bool Communication_Thread::setSpeed(Communication *robot, Pas_Robot pas)
 Pas_Robot Communication_Thread::getSpeed(Communication *robot)
 {
 	string msg = "E\n";
-
+	//char *buffer;
 	robot->SendData(msg);
 
 	string recv;
@@ -235,12 +258,13 @@ Pas_Robot Communication_Thread::getSpeed(Communication *robot)
 	/*
 	 * réponse de la forme : e,pas_gauche,pas_droit\n
 	 */
-
+	//uffer = new char[500];
 	//robot->sendMsg(msg.c_str(), buffer, 500);
+	//string recv = buffer;
+
 	Pas_Robot pas;
 	pas.pas_gauche = atoi( recv.substr(2, recv.find_last_of(',')).c_str() );
 	pas.pas_droite = atoi( recv.substr(recv.find_last_of(','),recv.length()).c_str()-1 );
-
 
 	return pas;
 
@@ -257,7 +281,10 @@ Pas_Robot Communication_Thread::getPosition(Communication *robot)
 	string recv;
 	robot->ReceiveData(recv);
 
+	//char buffer[500];
 	//robot->sendMsg(msg.c_str(), buffer, 500);
+	//string recv = buffer;
+
 	/*
 	 * réponse de la forme : e,pas_gauche,pas_droit\n
 	 */
@@ -290,7 +317,8 @@ bool Communication_Thread::setObjectif(Communication *robot, Pas_Robot pas)
 	//printf("recv : %s", recv.c_str());
 
 	//robot->sendMsg(msg.c_str(), buffer, 500);
-	if (recv[0] == 'c')
+
+	if (buffer[0] == 'c')
 		return true;
 
 
@@ -307,7 +335,7 @@ bool Communication_Thread::resetPosition(Communication *robot)
 	//préparation de la réception
 	string recv;
 	robot->ReceiveData(recv);
-
+	//char buffer[500];
 	//robot->sendMsg(msg.c_str(), buffer, 500);
 
 	if (recv[0] == 'g')

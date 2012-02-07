@@ -11,6 +11,7 @@
 #include <mqueue.h>
 #include "Utils.h"
 #include "Communication.h"
+#include "ComKh.h"
 
 
 class Communication_Thread {

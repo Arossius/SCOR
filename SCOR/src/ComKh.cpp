@@ -126,9 +126,11 @@ int ComKh::Readline(char *result, int size)
     if (nrd < 0) break;
     result[rsize] = c;
     rsize += nrd;
+    printf("---%c---",c);
+
   }
   while (nrd==1 && rsize < size && c != '\n');
-
+  printf("END READ\n");
   result[rsize] = '\0';
 
   if (nrd>=0)
@@ -169,10 +171,12 @@ void ComKh::EmptyBuffer()
 
   ---------------------------------------------------------------------------*/
 
-int ComKh::sendMsg(char *message, char *result, int size)
+int ComKh::sendMsg(const char *message, char *result, int size)
 {
   int  rd, rsize, tries = 0;
   char respond = tolower(message[0]);
+
+  result[0] = 0;
 
   do  {
       int wr;

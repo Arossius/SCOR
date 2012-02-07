@@ -17,6 +17,8 @@
 #include "Communication_Thread.h"
 #include "Ordre_Thread.h"
 #include "IAModule_Thread.h"
+#include "Robot_Thread.h"
+
 using namespace std;
 
 extern Robot robot1;
@@ -191,6 +193,9 @@ void testIA_Ordre_Com()
 	IAModule_Thread iamoduleTH;
 	iamoduleTH.Launch();
 
+	Robot_Thread robotTH;
+	robotTH.Launch();
+
 
 
 	string a("aaa");
@@ -202,10 +207,13 @@ void testIA_Ordre_Com()
 		cout << "a" <<endl;
 		Msg_Robot_IA msg;
 
+		if (a == "exit")
+			break;
+
 		msg.balle.pos_x = 120;
 		msg.balle.pos_y = 80;
 		msg.balle.vit_x = 0;
-		msg.balle.vit_y = 0;
+		msg.balle.vit_y = 10;
 
 
 		msg.robot1.pos_x = 0;

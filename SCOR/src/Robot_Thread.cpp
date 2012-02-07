@@ -13,6 +13,7 @@
 
 #include <semaphore.h>
 
+#include <iostream>
 
 sem_t sem_pos;
 
@@ -26,7 +27,7 @@ Robot_Thread::Robot_Thread()
 	mq_attr att;
 	att.mq_maxmsg = 10;
 	att.mq_msgsize = sizeof(Msg_Com_Robot);
-	bal_com_robot = mq_open(BAL_COM_ROBOT, O_RDONLY | O_CREAT, S_IRWXU, &att);
+	bal_com_robot = mq_open(BAL_COM_ROBOT, O_RDONLY | O_CREAT | O_NONBLOCK, S_IRWXU, &att);
 	att.mq_msgsize = sizeof(Msg_Vid_Robot);
 	bal_video_robot = mq_open(BAL_VIDEO_ROBOT, O_RDONLY | O_NONBLOCK | O_CREAT, S_IRWXU, &att);
 	att.mq_msgsize = sizeof(Msg_Robot_IA);
@@ -89,6 +90,8 @@ void Robot_Thread::run()
 			msg_robot_ia.balle.vit_y = balle.vit_y;
 
 
+			std::cout << "position robot1 : " << msg_robot_ia.robot1.pos_x << ", " << msg_robot_ia.robot1.pos_y << ", " << msg_robot_ia.robot1.angle << std::endl;
+			std::cout << "position robot2 : " << msg_robot_ia.robot2.pos_x << ", " << msg_robot_ia.robot2.pos_y << ", " << msg_robot_ia.robot2.angle << std::endl;
 			mq_send(bal_robot_ia, (char*)&msg_robot_ia, sizeof(Msg_Robot_IA), 0);
 		}
 	}

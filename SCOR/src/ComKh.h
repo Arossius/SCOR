@@ -57,7 +57,7 @@ public:
 	void EmptyBuffer();
 	int Readline(char *result, int size);
 	int init(const char *port);
-	int sendMsg(char *message, char *result, int size);
+	int sendMsg(const char *message, char *result, int size);
 	void Close();
 
 private:
