@@ -10,7 +10,7 @@
 CvPoint p_corners[4];
 bool waiting_corners;
 int corners;
-int mB_val = 28, mW_val = 42, mR_val = 60;
+int mB_val = 8, mW_val = 42, mR_val = 60;
 
 void on_mouse(int event, int x, int y, int flags, void* param) {
 	if (event == CV_EVENT_LBUTTONDOWN) {
@@ -64,8 +64,8 @@ void FieldViewer::ShowVideo() {
 		FindBall(warped);
 		balle.pos_x = ball.posB.x;
 		balle.pos_y = ball.posB.y;
-		balle.vit_x = (ball.posB.x - ball.prevB.x)*15;
-		balle.vit_y = (ball.posB.y - ball.prevB.y)*15;
+		balle.vit_x = (ball.posB.x - ball.prevB.x) * 15;
+		balle.vit_y = (ball.posB.y - ball.prevB.y) * 15;
 		CvFont font;
 		double hScale = 0.5;
 		double vScale = 0.5;
@@ -105,7 +105,8 @@ void FieldViewer::ShowVideo() {
 		msg_vid_robot.robot1 = kephR;
 		msg_vid_robot.robot2 = kephL;
 		msg_vid_robot.balle = balle;
-		mq_send(bal_video_robot, (char*)&msg_vid_robot, sizeof(Msg_Vid_Robot), 0);
+		mq_send(bal_video_robot, (char*) &msg_vid_robot, sizeof(Msg_Vid_Robot),
+				0);
 	} while (key == -1);
 	cvDestroyWindow("ShowVid");
 }
@@ -140,11 +141,12 @@ FieldViewer::FieldViewer() {
 
 	/* On lit du fichier*/
 	//= cvCaptureFromAVI("/home/jetmir/out2.avi");
-	capture = cvCaptureFromAVI("/home/jetmir/out2.avi");//= cvCaptureFromCAM(1);
-	//    cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH,640);
-	//	cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT,480);
+	capture = cvCaptureFromCAM(1);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
 
 	IplImage * imgL = cvQueryFrame(capture);
+	imgL = cvQueryFrame(capture);
 
 	corners = 0;
 	waiting_corners = true;
