@@ -86,7 +86,7 @@ void IAModule_Thread::run()
 				case STOPPED: msg_ia_ordre =  Attaquer();
 					break;
 			}
-			printf("objectif : %d", directionBalle);
+			printf("objectif : %d\n", directionBalle);
 
 			/*
 			 * on vérifie maintenant si l'ordre a changé pour savoir
@@ -97,6 +97,8 @@ void IAModule_Thread::run()
 				// envoi
 				mq_send(bal_ia_ordre, (char*)&msg_ia_ordre, sizeof(Msg_IA_Ordre), 0);
 				// sauvegarde de l'objetctif actuel
+				printf("obj1 : %d,%d,%f\n",msg_ia_ordre.ordre_robot1.robot.pos_x,msg_ia_ordre.ordre_robot1.robot.pos_y, msg_ia_ordre.ordre_robot1.robot.angle);
+				printf("obj2 : %d,%d,%f\n",msg_ia_ordre.ordre_robot2.robot.pos_x,msg_ia_ordre.ordre_robot2.robot.pos_y, msg_ia_ordre.ordre_robot2.robot.angle);
 				dernierOrdre = msg_ia_ordre;
 			}
 
@@ -296,8 +298,8 @@ bool IAModule_Thread::ObjectifModifie(Msg_IA_Ordre  msg_ia_ordre)
 		int oldX = dernierOrdre.ordre_robot1.robot.pos_x;
 		int oldY = dernierOrdre.ordre_robot1.robot.pos_y;
 
-		if (   (newX - oldX)*(newX - oldX) > 10
-			|| (newY - oldY)*(newY - oldY) > 10)
+		if (   (newX - oldX)*(newX - oldX) > 100
+			|| (newY - oldY)*(newY - oldY) > 100)
 			return true;
 	}
 	if (   msg_ia_ordre.ordre_robot2.type_Ordre_Robot == Move
@@ -309,8 +311,8 @@ bool IAModule_Thread::ObjectifModifie(Msg_IA_Ordre  msg_ia_ordre)
 		int oldX = dernierOrdre.ordre_robot2.robot.pos_x;
 		int oldY = dernierOrdre.ordre_robot2.robot.pos_y;
 
-		if (   (newX - oldX)*(newX - oldX) > 10
-			|| (newY - oldY)*(newY - oldY) > 10)
+		if (   (newX - oldX)*(newX - oldX) > 100
+			|| (newY - oldY)*(newY - oldY) > 100)
 			return true;
 	}
 

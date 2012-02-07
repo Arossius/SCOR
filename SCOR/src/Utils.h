@@ -117,7 +117,7 @@ typedef Pas_Robots Msg_Com_Robot;
 /*
  * Dimensions du robot
  */
-const int RAYON_ROBOT = 50;
+const int RAYON_ROBOT = 10;
 const int ANGLE_VISEE = 90;
 
 /* Définition de la carte en coordonnées (X,Y) de déplacement

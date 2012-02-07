@@ -19,6 +19,9 @@
 #include "IAModule_Thread.h"
 using namespace std;
 
+extern Robot robot1;
+extern Robot robot2;
+
 
 void TestCom()
 {
@@ -125,6 +128,7 @@ void testOrdre_Com()
 	Ordre_Thread ordreTH;
 	ordreTH.Launch();
 
+
 	string a("aaaaaaaaaaaaaaa");
 	while (a != "exit")
 	{
@@ -164,6 +168,14 @@ void testOrdre_Com()
 
 void testIA_Ordre_Com()
 {
+	robot1.angle = 0;
+	robot1.pos_x = 0;
+	robot1.pos_y = 0;
+
+	robot2.angle = 180;
+	robot2.pos_x = 480;
+	robot2.pos_y = 0;
+
 	mq_attr att;
 	att.mq_maxmsg = 10;
 	att.mq_msgsize = sizeof(Msg_Robot_IA);
@@ -179,6 +191,8 @@ void testIA_Ordre_Com()
 	IAModule_Thread iamoduleTH;
 	iamoduleTH.Launch();
 
+
+
 	string a("aaa");
 	while (a != "exit")
 	{
@@ -188,10 +202,10 @@ void testIA_Ordre_Com()
 		cout << "a" <<endl;
 		Msg_Robot_IA msg;
 
-		msg.balle.pos_x = 200;
-		msg.balle.pos_y = 500;
-		msg.balle.vit_x = 1;
-		msg.balle.vit_y = 10;
+		msg.balle.pos_x = 120;
+		msg.balle.pos_y = 80;
+		msg.balle.vit_x = 0;
+		msg.balle.vit_y = 0;
 
 
 		msg.robot1.pos_x = 0;
@@ -227,17 +241,6 @@ void testIA_Ordre_Com()
 		i = mq_send(bal_robot_ia, (char*)&msg, sizeof(Msg_Robot_IA), 0);
 		cout << "i=" << i << endl;
 
-
-
-		/*mq_receive(coucou2, (char*)&msg2, sizeof(Msg_Ordre_Com), NULL);
-		cout << msg2.ordres[0].robot1.pas_droite << endl;
-		cout << msg2.ordres[0].robot1.pas_gauche << endl;
-		cout << msg2.ordres[1].robot1.pas_droite << endl;
-		cout << msg2.ordres[1].robot1.pas_gauche << endl;
-		cout << msg2.ordres[2].robot1.pas_droite << endl;
-		cout << msg2.ordres[2].robot1.pas_gauche << endl;
-		cout << msg2.ordres[3].robot1.pas_droite << endl;
-		cout << msg2.ordres[3].robot1.pas_gauche << endl;*/
 	}
 
 
@@ -248,6 +251,11 @@ void testIA_Ordre_Com()
 
 
 }
+
+
+
+
+
 
 int main()
 {

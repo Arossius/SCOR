@@ -35,6 +35,8 @@ protected:
 
 	Pas_Robot getSpeed(Communication *robot);
 
+	Pas_Robot getPosition(Communication *robot);
+
 	bool setObjectif(Communication *robot, Pas_Robot pas);
 
 	bool resetPosition(Communication *robot);
@@ -56,6 +58,8 @@ protected:
 	/* ordre actuel */
 	Msg_Ordre_Com liste;
 	int ordreCourantRobot1;
+	Pas_Robot pasPreviousTopRobot1;
+	Pas_Robot pasPreviousTopRobot2;
 	int ordreCourantRobot2;
 
 };
