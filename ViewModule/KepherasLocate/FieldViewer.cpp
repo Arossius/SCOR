@@ -141,7 +141,7 @@ FieldViewer::FieldViewer() {
 
 	/* On lit du fichier*/
 	//= cvCaptureFromAVI("/home/jetmir/out2.avi");
-	capture = cvCaptureFromCAM(1);
+	capture = cvCaptureFromCAM(0);
 	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
 	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
 
