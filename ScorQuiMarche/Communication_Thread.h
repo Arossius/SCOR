@@ -63,6 +63,7 @@ protected:
 	Pas_Robot pasPreviousTopRobot2;
 	int ordreCourantRobot2;
 
+
 };
 
 #endif /* COMMUNICATION_THREAD_H_ */

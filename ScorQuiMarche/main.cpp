@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <iostream>
 #include "cv.h"
 #include "highgui.h"
 #include "FieldViewer.h"
@@ -42,9 +43,9 @@ int main(int argc, char * argv[]) {
 	while (a != "exit")
 	{
 
-		cout << "a" <<endl;
+		std::cout << "a" <<endl;
 		cin >> a;
-		cout << "a" <<endl;
+		std::cout << "a" <<endl;
 		Msg_Robot_IA msg;
 
 		if (a == "exit")

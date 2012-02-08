@@ -68,8 +68,6 @@ void IAModule_Thread::run()
 		// On attend que la position du robot ou de la balle change	
 		if (mq_receive(bal_robot_ia, (char*)&msg_robot_ia, sizeof(Msg_Robot_IA), NULL)!= -1)
 		{
-			
-			printf("Message reçu\n");
 
 			balle = msg_robot_ia.balle;
 			robot1 = msg_robot_ia.robot1;
@@ -86,7 +84,6 @@ void IAModule_Thread::run()
 				case STOPPED: msg_ia_ordre =  Attaquer();
 					break;
 			}
-			printf("objectif : %d\n", directionBalle);
 
 			/*
 			 * on vérifie maintenant si l'ordre a changé pour savoir
@@ -94,6 +91,7 @@ void IAModule_Thread::run()
 			 */
 			if (ObjectifModifie(msg_ia_ordre))
 			{
+			printf("objectif : %d\n", directionBalle);
 				// envoi
 				mq_send(bal_ia_ordre, (char*)&msg_ia_ordre, sizeof(Msg_IA_Ordre), 0);
 				// sauvegarde de l'objetctif actuel
@@ -122,7 +120,7 @@ E_DIRECTION_BALLE IAModule_Thread::DefinirDirectionBalle(Balle balle)
 	 * à moins de 2, la vitesse est considérée comme nulle
 	 * on utilise un carré pour la valeur absolue
 	 */
-	if ((balle.vit_y*balle.vit_y)+(balle.vit_x*balle.vit_x) < 4)
+	if (((balle.vit_y*balle.vit_y)+(balle.vit_x*balle.vit_x) < 400) && (balle.pos_y < LONGUEUR_TERRAIN / 2))
 		return STOPPED;
 
 	if (balle.vit_y < 0)

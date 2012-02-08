@@ -8,7 +8,7 @@
 #ifndef FIELDVIEWER_H_
 #define FIELDVIEWER_H_
 
-#include <iostream>
+#include <stdio.h>
 #include <math.h>
 #include <mqueue.h>
 #include "Utils.h"
@@ -35,7 +35,7 @@ public:
 
 	/* Lance un nouveau thread */
 	void Launch();
-	void ShowVideo();
+
 	virtual ~FieldViewer();
 
 protected:
@@ -61,7 +61,7 @@ protected:
 	void FindBall(IplImage *imgL);
 	void FindKG();
 	void FindKD();
-	
+	void ShowVideo();
 	/* Identifiant du thread */
 	pthread_t thread;
 	/* Boucle principal du thread  */

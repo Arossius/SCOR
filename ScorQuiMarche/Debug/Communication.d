@@ -1,3 +1,3 @@
-Communication.d: ../Communication.cpp ../Communication.h
+Communication.d Communication.o: ../Communication.cpp ../Communication.h
 
 ../Communication.h:

@@ -15,9 +15,13 @@
 
 #include "Robot_Thread.h"
 
-#include <iostream>
+#include <stdio.h>
 
 #include <errno.h>
+
+#include <time.h>
+
+#include <unistd.h>
 
 extern sem_t sem_pos;
 
@@ -30,7 +34,7 @@ Ordre_Thread::Ordre_Thread()
 	mq_attr att;
 	att.mq_maxmsg = 10;
 	att.mq_msgsize = sizeof(Msg_IA_Ordre);
-	bal_ia_ordre = mq_open(BAL_IA_ORDRE, O_RDONLY | O_CREAT, S_IRWXU, &att);
+	bal_ia_ordre = mq_open(BAL_IA_ORDRE, O_RDONLY | O_CREAT | O_NONBLOCK, S_IRWXU, &att);
 	att.mq_msgsize = sizeof(Msg_Ordre_Com);
 	bal_ordre_com = mq_open(BAL_ORDRE_COM, O_WRONLY | O_CREAT | O_NONBLOCK, S_IRWXU, &att);
 }
@@ -61,8 +65,13 @@ void Ordre_Thread::run()
 	Msg_Ordre_Com msg_Ordre_Com;
 	for ( ; ; )
 	{
-		mq_receive(bal_ia_ordre, (char*)&msg_IA_Ordre, sizeof(Msg_IA_Ordre), NULL);
-		std::cout << "j'ai reçu un message (ordre)" << std::endl;
+		int nb_essai = 0;
+		while ((mq_receive(bal_ia_ordre, (char*)&msg_IA_Ordre, sizeof(Msg_IA_Ordre), NULL) == -1) && (nb_essai++ < 200))
+		{
+                	usleep(50000);
+		}
+
+		printf("%d\n", errno);
 		double angle = 0.0;
 		double diff_angle = 0.0;
 		int dist_x;
@@ -304,7 +313,7 @@ void Ordre_Thread::run()
 
 			break;
 		}
+		printf("J'ai balancé un message ou un truc comme ça");
 		mq_send(bal_ordre_com, (char*)&msg_Ordre_Com, sizeof(Msg_Ordre_Com), 0);
-		std::cout << "j'ai envoyé un message (ordre)" << std::endl;
 	}
 }

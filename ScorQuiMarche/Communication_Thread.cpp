@@ -209,7 +209,7 @@ void Communication_Thread::run()
 				msg_com_robot.robot2 = avanceRobot2;
 
 //				printf("bal_com_robot %d\n",bal_com_robot);
-				mq_send(bal_com_robot, (char*)&msg_com_robot, sizeof(Msg_Com_Robot), 0);
+				//mq_send(bal_com_robot, (char*)&msg_com_robot, sizeof(Msg_Com_Robot), 0);
 	//			printf("après mq_send\n");
 			}
 
@@ -229,7 +229,7 @@ bool Communication_Thread::setSpeed(Communication *robot, Pas_Robot pas)
 	sprintf(buffer, "D,%d,%d\n", pas.pas_gauche, pas.pas_droite);
 	string msg = buffer;
 
-	printf("%s",msg.c_str());
+//	printf("%s",msg.c_str());
 	robot->SendData(msg);
 
 	//préparation de la réception

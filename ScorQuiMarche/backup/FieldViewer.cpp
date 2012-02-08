@@ -18,6 +18,7 @@ void on_mouse(int event, int x, int y, int flags, void* param) {
 		p_corners[corners].y = y;
 		corners++;
 		waiting_corners = corners < 4;
+		printf("mouse click x = %d  y = %d\n", x, y);
 	}
 }
 
@@ -33,7 +34,7 @@ void warpImage(IplImage * imgL, IplImage * tmpIm, CvMat * mmat) {
 	try {
 		cvWarpPerspective(imgL, tmpIm, mmat);
 	} catch (Exception ex) {
-		cout << "Exception in performWarp()\n";
+	//		cout << "Exception in performWarp()\n";
 	}
 }
 
@@ -53,6 +54,8 @@ void FieldViewer::ShowVideo() {
 	Msg_Vid_Robot msg_vid_robot;
 	float velocity = 0;
 	int key = -1;
+
+	printf("test\n");
 	cvNamedWindow("ShowVid", CV_WINDOW_NORMAL);
 	cvShowImage("ShowVid", warped);
 	do {
@@ -75,11 +78,10 @@ void FieldViewer::ShowVideo() {
 				vScale, 0, lineWidth);
 		char v[80] = { 0 };
 		char v2[80] = { 0 };
-		sprintf(v, "%s Blue %d %d Blanche %d %d angle %f", "K1",
+		sprintf(v, "%s Blue %d %d Blanche %d %d angle %6.3f", "K1",
 				kephD.posB.x, kephD.posB.y, kephD.posW.x, kephD.posW.y,
 				kephD.angle);
-
-		sprintf(v2, "%s Blue %d %d Blanche %d %d angle %f", "K2",
+		sprintf(v2, "%s Blue %d %d Blanche %d %d angle %6.3f", "K2",
 				kephG.posB.x, kephG.posB.y, kephG.posW.x, kephG.posW.y,
 				kephG.angle);
 		print.x = 10;
@@ -87,7 +89,7 @@ void FieldViewer::ShowVideo() {
 		cvPutText(warped, v, print, &font, cvScalar(255, 255, 0));
 		print.y = 40;
 		cvPutText(warped, v2, print, &font, cvScalar(255, 255, 0));
-		
+
 		velocity = sqrt(pow((ball.posB.x - ball.prevB.x), 2) + pow((ball.posB.y
 				- ball.prevB.y), 2));
 
@@ -101,57 +103,49 @@ void FieldViewer::ShowVideo() {
 		cvPutText(warped, v, kephG.posW, &font, cvScalar(255, 255, 0));
 
 		cvShowImage("ShowVid", warped);
-		key = cvWaitKey(1000/15);
+		key = cvWaitKey(1000 / 15);
 		msg_vid_robot.robot1 = kephR;
 		msg_vid_robot.robot2 = kephL;
 		msg_vid_robot.balle = balle;
-		if(kephR.pos_x < 640 && kephR.pos_x > 0 && kephR.pos_y < 480 && kephR.pos_y > 0 
-			&& kephL.pos_x < 640 && kephL.pos_x > 0 && kephL.pos_y < 480 && kephL.pos_y > 0
-			&& balle.pos_x < 640 && balle.pos_x > 0 && balle.pos_y < 480 && balle.pos_y > 0)
 		mq_send(bal_video_robot, (char*) &msg_vid_robot, sizeof(Msg_Vid_Robot),
 				0);
-	} while (1);
+	} while (key == -1);
 	cvDestroyWindow("ShowVid");
 }
 
 void FieldViewer::FindKD() {
-	kephD = FindKeph(warped, 0, warped->height / 2, warped->width / 2+30 ,
+	kephD = FindKeph(warped, 0, warped->height / 2, warped->width / 2 + 15,
 			warped->width);
-	kephD.angle = atan2(kephD.posW.y - kephD.posB.y, kephD.posW.x - kephD.posB.x) * 180 / PI;
 
-	{
-		kephR.angle = kephD.angle;
-		kephR.pos_x = (kephD.posB.x + kephD.posW.x) / 2;
-		kephR.pos_y = (kephD.posB.y + kephD.posW.y) / 2;
-	}
+	kephD.angle = atan2(kephD.posW.x - kephD.posB.x, kephD.posW.y
+			- kephD.posB.y) * 180 / PI;
+	kephR.angle = kephD.angle;
+	kephR.pos_x = (kephD.posB.x + kephD.posW.x) / 2;
+	kephR.pos_y = (kephD.posB.y + kephD.posW.y) / 2;
 }
 
 void FieldViewer::FindKG() {
 
 	kephG = FindKeph(warped, warped->height / 2, warped->height, warped->width
-			/ 2 +30 , warped->width);
-	kephG.angle = atan2(kephG.posW.y - kephG.posB.y , kephG.posW.x - kephG.posB.x) * 180 / PI;	
-
-	{
-		
-		kephL.angle = kephG.angle;
-		kephL.pos_x = (kephG.posB.x + kephG.posW.x) / 2;
-		kephL.pos_y = (kephG.posB.y + kephG.posW.y) / 2;
-	}
+			/ 2 + 15, warped->width);
+	kephG.angle = atan2(kephG.posW.x - kephG.posB.x, kephG.posW.y
+			- kephG.posB.y) * 180 / PI;
+	kephL.angle = kephG.angle;
+	kephL.pos_x = (kephG.posB.x + kephG.posW.x) / 2;
+	kephL.pos_y = (kephG.posB.y + kephG.posW.y) / 2;
 }
 
 FieldViewer::FieldViewer() {
-	
-mq_attr att;
+	mq_attr att;
 	att.mq_maxmsg = 10;
 	att.mq_msgsize = sizeof(Msg_Vid_Robot);
 	bal_video_robot = mq_open(BAL_VIDEO_ROBOT, O_WRONLY | O_NONBLOCK | O_CREAT, S_IRWXU, &att);
 
 	/* On lit du fichier*/
-	//capture = cvCaptureFromAVI("/home/robot2/Bureau/out2.avi");
+	//capture = cvCaptureFromAVI("/home/adrien/out2.avi");
 	capture = cvCaptureFromCAM(0);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 1280);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 720);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
 
 	IplImage * imgL = cvQueryFrame(capture);
 	imgL = cvQueryFrame(capture);
@@ -381,16 +375,19 @@ void savePoints(CvPoint c[4]) {
 }
 
 void FieldViewer::run() {
+	printf("run\n");
 	ShowVideo();
 }
 
 void* FieldViewer::exec(void* view_thread) {
+	printf("exec\n");
 	FieldViewer* thread = (FieldViewer*) view_thread;
 	thread->run();
 	return 0;
 }
 
 void FieldViewer::Launch() {
+	printf("launch\n");
 	pthread_create(&thread, NULL, FieldViewer::exec, this);
 }
 
@@ -410,7 +407,7 @@ void FieldViewer::compute_Warp(IplImage * img) {
 		try {
 			cvWarpPerspective(img, warped, mmat);
 		} catch (Exception ex) {
-			cout << "Exception in performWarp()\n";
+			//
 		}
 	} else {
 		cvNamedWindow("Terrain", CV_WINDOW_AUTOSIZE);
@@ -433,7 +430,7 @@ void FieldViewer::compute_Warp(IplImage * img) {
 		try {
 			cvWarpPerspective(img, warped, mmat);
 		} catch (Exception ex) {
-			cout << "Exception in performWarp()\n";
+			//
 		}
 		cvDestroyWindow("Terrain");
 		savePoints(p_corners);

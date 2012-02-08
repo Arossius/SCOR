@@ -10,6 +10,7 @@
 
 #include <mqueue.h>
 #include "Utils.h"
+#include <time.h>
 
 const double CONVERSION_LONGUEUR = 0.04; // Converti un pas en distance (en unité de vidéo)
 const double CONVERSION_ANGLE = 0.171428; // Converti un pas en angle (en degré)
@@ -24,6 +25,8 @@ public:
 	void Launch();
 
 protected:
+
+	time_t my_time;
 
 	/* Boîte aux lettres de communication entre Com et Robot */
 	mqd_t bal_com_robot;
@@ -46,7 +49,7 @@ protected:
 	/* Permet de déterminer la nouvelle posiiton du robot à partir d'un déplacement du robot */
 	void setNewPosition(Robot& robot, Pas_Robot pas_robot);
 
-	void copyPositions(Robot robot1, Robot robot2, Balle balle);
+	void setPositionsFromVideo(Robot robot1, Robot robot2, Balle balle);
 };
 
 #endif /* ROBOT_THREAD_H_ */
