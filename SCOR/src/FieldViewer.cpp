@@ -102,12 +102,18 @@ void FieldViewer::ShowVideo() {
 
 		cvShowImage("ShowVid", warped);
 		key = cvWaitKey(1000 / 15);
-		msg_vid_robot.robot1 = kephR;
-		msg_vid_robot.robot2 = kephL;
+		msg_vid_robot.robot1 = kephL;
+		msg_vid_robot.robot2 = kephR;
+
 		msg_vid_robot.balle = balle;
-		mq_send(bal_video_robot, (char*) &msg_vid_robot, sizeof(Msg_Vid_Robot),
-				0);
-	} while (key == -1);
+		if (kephR.pos_x < 640 && kephR.pos_x > 0 && kephR.pos_y < 480
+				&& kephR.pos_y > 0 && kephL.pos_x < 640 && kephL.pos_x > 0
+				&& kephL.pos_y < 480 && kephL.pos_y > 0 && balle.pos_x < 640
+				&& balle.pos_x > 0 && balle.pos_y < 480 && balle.pos_y > 0) {
+			mq_send(bal_video_robot, (char*) &msg_vid_robot,
+					sizeof(Msg_Vid_Robot), 0);
+		}
+	} while (1);
 	cvDestroyWindow("ShowVid");
 }
 
@@ -141,7 +147,7 @@ FieldViewer::FieldViewer() {
 
 	/* On lit du fichier*/
 	//= cvCaptureFromAVI("/home/jetmir/out2.avi");
-	capture = cvCaptureFromCAM(1);
+	capture = cvCaptureFromCAM(0);
 	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
 	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
 

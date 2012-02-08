@@ -18,6 +18,7 @@
 #include "Ordre_Thread.h"
 #include "IAModule_Thread.h"
 #include "Robot_Thread.h"
+#include "FieldViewer.h"
 
 using namespace std;
 
@@ -184,6 +185,7 @@ void testIA_Ordre_Com()
 
 	mqd_t bal_robot_ia = mq_open(BAL_ROBOT_IA, O_WRONLY | O_CREAT, S_IRWXU, &att);
 
+
 	Communication_Thread comTH;
 	comTH.Launch();
 
@@ -260,6 +262,46 @@ void testIA_Ordre_Com()
 
 }
 
+void Complet()
+{
+
+	Communication_Thread comTH;
+	comTH.Launch();
+
+	Ordre_Thread ordreTH;
+	ordreTH.Launch();
+
+	FieldViewer fieldViewer;
+	fieldViewer.Launch();
+
+	IAModule_Thread iamoduleTH;
+	iamoduleTH.Launch();
+
+	Robot_Thread robotTH;
+	robotTH.Launch();
+
+
+
+	string a("aaa");
+	while (a != "exit")
+	{
+
+		cout << "a" <<endl;
+		cin >> a;
+		cout << "a" <<endl;
+		Msg_Robot_IA msg;
+
+		if (a == "exit")
+			break;
+
+	}
+
+
+
+	cout << "c'est fini" << endl;
+
+
+}
 
 
 
@@ -270,7 +312,8 @@ int main()
 
 	//testOrdre_Com();
 	//TestCom();
-	testIA_Ordre_Com();
+	//testIA_Ordre_Com();
+	Complet();
 
 	return 0;
 }
