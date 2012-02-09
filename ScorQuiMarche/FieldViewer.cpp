@@ -150,8 +150,8 @@ mq_attr att;
 	/* On lit du fichier*/
 	//capture = cvCaptureFromAVI("/home/robot2/Bureau/out2.avi");
 	capture = cvCaptureFromCAM(0);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 1280);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 720);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
 
 	IplImage * imgL = cvQueryFrame(capture);
 	imgL = cvQueryFrame(capture);
