@@ -36,9 +36,9 @@ FieldAnalyse::FieldAnalyse() {
 
 	/* On lit du fichier*/
 	//= cvCaptureFromAVI("/home/jetmir/out2.avi");
-	capture = cvCaptureFromAVI("/home/jetmir/out2.avi");//= cvCaptureFromCAM(0);
-	//cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
-	//cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
+	capture = cvCaptureFromCAM(0);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
+	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
 
 	IplImage * imgL = cvQueryFrame(capture);
 	imgL = cvQueryFrame(capture);
