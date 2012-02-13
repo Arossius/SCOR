@@ -8,16 +8,16 @@
 #include <stdio.h>
 #include "cv.h"
 #include "highgui.h"
-#include "FieldViewer.h"
+#include "FieldAnalyse.h"
 
 using namespace std;
 using namespace cv;
 
-
 int main(int argc, char * argv[]) {
-	FieldViewer field = FieldViewer();
+
+	FieldAnalyse field;
 	field.Launch();
-	sleep(20);
+	sleep(50);
 	return 0;
 }
 

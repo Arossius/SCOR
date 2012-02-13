@@ -22,14 +22,6 @@ void on_mouse(int event, int x, int y, int flags, void* param) {
 	}
 }
 
-void onTrackbarSlideB(int pos) {
-	mB_val = pos;
-}
-
-void onTrackbarSlideW(int pos) {
-	mW_val = pos;
-}
-
 void warpImage(IplImage * imgL, IplImage * tmpIm, CvMat * mmat) {
 	try {
 		cvWarpPerspective(imgL, tmpIm, mmat);
@@ -141,9 +133,9 @@ FieldViewer::FieldViewer() {
 
 	/* On lit du fichier*/
 	//= cvCaptureFromAVI("/home/jetmir/out2.avi");
-	capture = cvCaptureFromCAM(0);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
+	capture = cvCaptureFromAVI("/home/jetmir/out2.avi");//= cvCaptureFromCAM(0);
+	//cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
+	//cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
 
 	IplImage * imgL = cvQueryFrame(capture);
 	imgL = cvQueryFrame(capture);
