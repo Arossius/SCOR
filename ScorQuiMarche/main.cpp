@@ -9,7 +9,7 @@
 #include <iostream>
 #include "cv.h"
 #include "highgui.h"
-#include "FieldViewer.h"
+#include "FieldAnalyse.h"
 #include "Communication_Thread.h"
 #include "IAModule_Thread.h"
 #include "Ordre_Thread.h"
@@ -28,8 +28,8 @@ int main(int argc, char * argv[]) {
 	ordreTH.Launch();
 	cout<<"avant FV" <<endl;
 
-	FieldViewer fieldViewer;
-	fieldViewer.Launch();
+	FieldAnalyse fieldAnalyse;
+	fieldAnalyse.Launch();
 
 	IAModule_Thread iamoduleTH;
 	iamoduleTH.Launch();

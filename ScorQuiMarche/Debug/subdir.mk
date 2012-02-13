@@ -7,30 +7,33 @@ CPP_SRCS += \
 ../ComKh.cpp \
 ../Communication.cpp \
 ../Communication_Thread.cpp \
-../FieldViewer.cpp \
+../FieldAnalyse.cpp \
 ../IAModule_Thread.cpp \
 ../Ordre_Thread.cpp \
 ../Robot_Thread.cpp \
+../ThreadAnalyse.cpp \
 ../main.cpp 
 
 OBJS += \
 ./ComKh.o \
 ./Communication.o \
 ./Communication_Thread.o \
-./FieldViewer.o \
+./FieldAnalyse.o \
 ./IAModule_Thread.o \
 ./Ordre_Thread.o \
 ./Robot_Thread.o \
+./ThreadAnalyse.o \
 ./main.o 
 
 CPP_DEPS += \
 ./ComKh.d \
 ./Communication.d \
 ./Communication_Thread.d \
-./FieldViewer.d \
+./FieldAnalyse.d \
 ./IAModule_Thread.d \
 ./Ordre_Thread.d \
 ./Robot_Thread.d \
+./ThreadAnalyse.d \
 ./main.d 
 
 
