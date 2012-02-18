@@ -26,6 +26,7 @@ void FieldAnalyse::Allocate_imgs() {
 	const int h = img->height;
 	treat = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
 	warped = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 3);
+	terrain = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 3);
 }
 
 FieldAnalyse::FieldAnalyse() {
@@ -36,7 +37,7 @@ FieldAnalyse::FieldAnalyse() {
 
 	/* On lit du fichier*/
 	//= cvCaptureFromAVI("/home/jetmir/out2.avi");
-	capture = cvCaptureFromAVI("/home/jetmir/out2.avi");//= cvCaptureFromCAM(0);
+	capture = cvCaptureFromAVI("/home/jetmir/out2.avi");//cvCaptureFromCAM(0);
 	//cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 640);
 	//cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 480);
 
@@ -48,19 +49,25 @@ FieldAnalyse::FieldAnalyse() {
 	Allocate_imgs();
 	compute_Warp();
 	img = warped;
-	setup_colors((char*) "White Color", white);
-	setup_colors((char*) "Red Color", red);
-	setup_colors((char*) "Blue color", blue);
-	//Prepare parameters
-	kephD.box[XMIN] = img->width / 2;
-	kephD.box[XMAX] = img->width;
-	kephD.box[YMIN] = 0;
-	kephD.box[YMAX] = img->height / 2;
+	white[MINB] = white[MINR] = white[MING] = 220;
+	white[MAXB] = white[MAXR] = white[MAXG] = 256;
 
-	kephG.box[XMIN] = img->width / 2;
-	kephG.box[XMAX] = img->width;
-	kephG.box[YMIN] = img->height / 2;
-	kephG.box[YMAX] = img->height;
+	red[MINR] = 200;
+	red[MAXR] = 256;
+	red[MINB] = red[MING] = 0;
+	red[MAXB] = red[MAXG] = 126;
+
+	blue[MINB] = 170;
+	blue[MAXB] = 256;
+	blue[MINR] = 0;
+	blue[MAXR] = 150;
+	blue[MING] = 127;
+	blue[MAXG] = 256;
+
+	//setup_colors((char*) "White Color", white);
+	//setup_colors((char*) "Red Color", red);
+	//setup_colors((char*) "Blue color", blue);
+	//Prepare parameters
 
 	balle.box[XMAX] = img->width;
 	balle.box[XMIN] = 0;
@@ -80,7 +87,7 @@ void FieldAnalyse::run() {
 	IplImage * imgL = cvQueryFrame(capture);
 	imgL = cvQueryFrame(capture);
 	img = imgL;
-	int fps = cvGetCaptureProperty(capture, CV_CAP_PROP_FPS);
+	//int fps = cvGetCaptureProperty(capture, CV_CAP_PROP_FPS);
 	pthread_t kD, kG, b;
 	kephD_t = new ThreadAnalyse(&kephD);
 	kephG_t = new ThreadAnalyse(&kephG);
@@ -92,12 +99,15 @@ void FieldAnalyse::run() {
 	CvFont font;
 	double hScale = 0.5;
 	double vScale = 0.5;
-	int lineWidth = 1;
+	int lineWidth = 1, teamR=0,teamL=0;
+	float xp = 0, yp = 0;
 	CvPoint print;
 	cvNamedWindow("ShowVid", CV_WINDOW_AUTOSIZE);
+	cvNamedWindow("Terrain", CV_WINDOW_AUTOSIZE);
 	cvInitFont(&font, CV_FONT_HERSHEY_TRIPLEX | CV_FONT_ITALIC, hScale, vScale,
 			0, lineWidth);
-
+	CvPoint rect[4] = { cvPoint(0, 0), cvPoint(img->width, 0), cvPoint(
+			img->width, img->height), cvPoint(0, img->height) };
 	kephD.img = warped;
 	kephG.img = warped;
 	balle.img = warped;
@@ -114,7 +124,41 @@ void FieldAnalyse::run() {
 		img = cvQueryFrame(capture);
 		compute_Warp();
 
+		/* Let's draw the field
+		 *
+		 *
+		 * */
+		cvFillConvexPoly(terrain, rect, 4, cvScalar(0, 255, 0), 0, 0);
+		cvLine(terrain, cvPoint(img->width / 2, 0), cvPoint(img->width / 2,
+				img->height), cvScalar(255, 255, 255), 5, CV_AA, 0);
+		cvRectangle(terrain, cvPoint(img->width * 5 / 6, img->height * 1 / 3),
+				cvPoint(img->width, img->height * 2 / 3), cvScalar(255, 255,
+						255), 5, CV_AA, 0);
+		cvRectangle(terrain, cvPoint(0, img->height * 1 / 3), cvPoint(
+				img->width * 1 / 6, img->height * 2 / 3), cvScalar(255, 255,
+				255), 5, CV_AA, 0);
+		cvCircle(terrain, cvPoint(img->width / 2, img->height / 2), img->height
+				/ 6, cvScalar(255, 255, 255), 5, CV_AA, 0);
+		cvCircle(terrain, cvPoint(img->width / 2, img->height / 2), 4,
+				cvScalar(255, 255, 255), 5, CV_AA, 0);
+		cvCircle(terrain, cvPoint(img->width, img->height), 10, cvScalar(255,
+				255, 255), 5, CV_AA, 0);
+		cvCircle(terrain, cvPoint(0, 0), 6, cvScalar(255, 255, 255), 10, CV_AA,
+				0);
+		cvCircle(terrain, cvPoint(img->width, 0), 10, cvScalar(255,
+				255, 255), 5, CV_AA, 0);
+		cvCircle(terrain, cvPoint(0, img->height), 10, cvScalar(255,
+				255, 255), 5, CV_AA, 0);
 		//BLUE COLOR   and BALL
+		kephD.box[XMIN] = img->width / 2;
+		kephD.box[XMAX] = img->width;
+		kephD.box[YMIN] = 0;
+		kephD.box[YMAX] = img->height / 2;
+
+		kephG.box[XMIN] = img->width / 2;
+		kephG.box[XMAX] = img->width;
+		kephG.box[YMIN] = img->height / 2;
+		kephG.box[YMAX] = img->height;
 		kephD.color = blue;
 		kephG.color = blue;
 		kephD.position = &(k1.posB);
@@ -127,6 +171,15 @@ void FieldAnalyse::run() {
 		//WHITE COLOR
 		pthread_join(kD, NULL);
 		pthread_join(kG, NULL);
+		kephD.box[XMIN] = k1.posB.x - 20;
+		kephD.box[XMAX] = k1.posB.x + 20;
+		kephD.box[YMIN] = k1.posB.y - 20;
+		kephD.box[YMAX] = k1.posB.y + 20;
+
+		kephG.box[XMIN] = k2.posB.x - 20;
+		kephG.box[XMAX] = k2.posB.x + 20;
+		kephG.box[YMIN] = k2.posB.y - 20;
+		kephG.box[YMAX] = k2.posB.y + 20;
 		kephD.color = white;
 		kephG.color = white;
 		kephD.position = &(k1.posW);
@@ -170,24 +223,65 @@ void FieldAnalyse::run() {
 				r2.angle);
 		print.x = 10;
 		print.y = 20;
+
 		cvPutText(warped, v, print, &font, cvScalar(255, 255, 0));
+		if(palla.pos_x < 30)
+			teamR++;
+		else if(palla.pos_x > img->width-30)
+			teamL++;
+		sprintf(v,"TeamR %d : %d TeamL",teamR,teamL);
+		cvPutText(terrain, v, print, &font, cvScalar(255, 255, 0));
 		print.y = 40;
 		cvPutText(warped, v2, print, &font, cvScalar(255, 255, 0));
 		sprintf(v, "%s vx:%4.2f vy:%4.2f", "Ball here: ", palla.vit_x,
 				palla.vit_y);
-		cvPutText(warped, v, bP.posB, &font, cvScalar(255, 255, 0));
+		cvPutText(warped, v, cvPoint(bP.posB.x + 12, bP.posB.y), &font,
+				cvScalar(255, 255, 0));
 		sprintf(v, "K1");
 		cvPutText(warped, v, k1.posW, &font, cvScalar(255, 255, 0));
 		sprintf(v, "K2");
 		cvPutText(warped, v, k2.posW, &font, cvScalar(255, 255, 0));
+
+		cvCircle(warped, cvPoint(r1.pos_x, r1.pos_y), 18, cvScalar(255, 0, 0),
+				2, CV_AA, 0);
+
+		cvCircle(terrain, cvPoint(r1.pos_x, r1.pos_y), 18, cvScalar(255, 0, 0),
+				2, CV_AA, 0);
+		xp = sin(r1.angle * PI / 180);
+		yp = cos(r1.angle * PI / 180);
+		//cout << "---->" << xp << "--->" << yp << "\n";
+		cvLine(warped, cvPoint(r1.pos_x + xp * 18, r1.pos_y + yp * 18),
+				cvPoint(r1.pos_x + 40 * xp, r1.pos_y + yp * 40), cvScalar(255,
+						0, 0), 3, CV_AA, 0);
+		cvLine(terrain, cvPoint(r1.pos_x + xp * 18, r1.pos_y + yp * 18),
+				cvPoint(r1.pos_x + 40 * xp, r1.pos_y + yp * 40), cvScalar(255,
+						0, 0), 3, CV_AA, 0);
+		cvCircle(warped, cvPoint(r2.pos_x, r2.pos_y), 18, cvScalar(0, 0, 255),
+				2, CV_AA, 0);
+		cvCircle(terrain, cvPoint(r2.pos_x, r2.pos_y), 18, cvScalar(0, 0, 255),
+				2, CV_AA, 0);
+		xp = sin(r2.angle * PI / 180);
+		yp = cos(r2.angle * PI / 180);
+		//cout << "---->" << xp << "--->" << yp << "\n";
+		cvLine(warped, cvPoint(r2.pos_x + xp * 18, r2.pos_y + yp * 18),
+				cvPoint(r2.pos_x + xp * 40, r2.pos_y + yp * 40), cvScalar(0, 0,
+						255), 3, CV_AA, 0);
+		cvLine(terrain, cvPoint(r2.pos_x + xp * 18, r2.pos_y + yp * 18),
+				cvPoint(r2.pos_x + xp * 40, r2.pos_y + yp * 40), cvScalar(0, 0,
+						255), 3, CV_AA, 0);
+		cvCircle(warped, cvPoint(palla.pos_x, palla.pos_y), 12, cvScalar(1, 1,
+				1), 2, CV_AA, 0);
+		cvCircle(terrain, cvPoint(palla.pos_x, palla.pos_y), 12, cvScalar(1, 1,
+				1), 2, CV_AA, 0);
 		cvShowImage("ShowVid", warped);
+		cvShowImage("Terrain", terrain);
 		//send messages
 		msg_vid_robot.robot1 = r1;
 		msg_vid_robot.robot2 = r2;
 		msg_vid_robot.balle = palla;
 		mq_send(bal_video_robot, (char*) &msg_vid_robot, sizeof(Msg_Vid_Robot),
 				0);
-		cvWaitKey(1000/fps);
+		cvWaitKey(1000 / 25);
 	} while (true);
 
 	//pthread_t wait_me = threadAnalyse.Launch();
