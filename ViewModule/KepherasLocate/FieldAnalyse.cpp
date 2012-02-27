@@ -64,9 +64,9 @@ FieldAnalyse::FieldAnalyse() {
 	blue[MING] = 127;
 	blue[MAXG] = 256;
 
-	//setup_colors((char*) "White Color", white);
-	//setup_colors((char*) "Red Color", red);
-	//setup_colors((char*) "Blue color", blue);
+	setup_colors((char*) "White Color", white);
+	setup_colors((char*) "Red Color", red);
+	setup_colors((char*) "Blue color", blue);
 	//Prepare parameters
 
 	balle.box[XMAX] = img->width;

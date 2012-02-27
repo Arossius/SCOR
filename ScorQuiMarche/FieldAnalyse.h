@@ -42,7 +42,7 @@ protected:
 	ThreadAnalyse *kephD_t, *kephG_t, *balle_t;
 	Field kephD, kephG, balle;
 	CvCapture * capture;
-	IplImage *img, *warped, *treat;
+	IplImage *img, *warped, *treat,*terrain;
 	Robot r1,r2;
 	Balle palla;
 	void Allocate_imgs();
